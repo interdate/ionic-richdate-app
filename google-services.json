@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "751050967445",
+    "firebase_url": "https://richdate-b2981.firebaseio.com",
+    "project_id": "richdate-b2981",
+    "storage_bucket": "richdate-b2981.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:751050967445:android:6cd219fa35b5decb",
+        "android_client_info": {
+          "package_name": "com.interdate.richdate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "751050967445-olicca2lqv9frqt2gljtr6tmgl6ai57h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4kbpjPJvNltBfgLIVMBZF3yFQ8auLMXs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

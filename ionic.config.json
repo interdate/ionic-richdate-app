@@ -1,0 +1,13 @@
+{
+  "name": "richdate",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular",
+  "proxies": [
+    {
+      "path": "/",
+      "proxyUrl": "https://m.richdate.co.il/api/v8"
+    }
+  ]
+}

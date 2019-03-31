@@ -1,0 +1,50 @@
+<!--
+  Generated template for the AdminMessagesPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>admin-messages</ion-title>
+  </ion-navbar>
+
+</ion-header>
+<div (click)="back()" class="back-btn">
+  <ion-icon name="ios-arrow-back-outline"></ion-icon>
+</div>
+
+<ion-content padding>
+  <ion-card [ngClass]="{'other-msg': user.userId == msg?.from }" *ngFor="let msg of messages"
+            class="usr_msg msg-item">
+    <ion-grid>
+      <ion-row>
+        <ion-col
+                *ngIf="!msg.voiceUrl && msg?.text != 'לא ניתן לצפות בהודעה. לרכישת מנוי לחצי כאן' && msg?.text != 'לא ניתן לצפות בהודעה. לרכישת מנוי לחצי כאן או השתמשי בנקודה לקריאת הודעות'"
+                class="text" width-75>
+          <ion-card-content [innerHTML]="msg?.text" item-left>
+          </ion-card-content>
+        </ion-col>
+        <ion-col *ngIf="msg.voiceUrl && isPlay == true && currentMsgPlay == msg.id" class="text" width-75>
+          <ion-card-content item-left>
+            <button style="width:19%;" class="play-button" ion-button
+                    color="danger">
+              <ion-icon name="pause"></ion-icon>
+            </button>
+            {{msg.text}}
+          </ion-card-content>
+        </ion-col>
+        <ion-col class="status" width-25>
+          <ion-card-content class="date" item-right>
+            <div class="time">{{msg.time}}
+            </div>
+            <div class="date">{{msg.date}}</div>
+            <!--<ion-icon *ngIf="user?.id == msg.from" name="checkmark"></ion-icon>-->
+
+          </ion-card-content>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+</ion-content>

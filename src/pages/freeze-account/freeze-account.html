@@ -1,0 +1,29 @@
+<!--
+  Generated template for the FreezeAccountPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  
+    <ion-navbar>
+      <ion-title>freezeAccount</ion-title>
+    </ion-navbar>
+  
+  </ion-header>
+  
+  
+  <ion-content padding>
+  <div padding class="note">
+      לידיעתכם: הקפאת חשבון אינה מבטלת את המנוי בתשלום במידה ויש לכם כזה. כדי לבטל את המנוי בתשלום טרם ההקפאה יש לשלוח לנו מייל דרך עמוד צור קשר, ובו בקשה לביטול המנוי בתשלום.
+  </div>
+  <div>
+        <div>
+          <ion-textarea [(ngModel)]="this.form.text.value" rows="8" placeholder="סיבת הקפאה"></ion-textarea>
+        </div>
+       <div>
+      <div *ngIf="allfields  && allfields?.length != 0" class="err">{{ allfields }}</div>
+       <button color="danger" (click)="submit()" full ion-button>הקפא</button>
+       </div>
+  </div>
+  </ion-content>
