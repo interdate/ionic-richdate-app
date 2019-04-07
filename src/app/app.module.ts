@@ -24,8 +24,7 @@ import {SettingsPageModule} from "../pages/settings/settings.module";
 import {SubscriptionPageModule} from "../pages/subscription/subscription.module";
 import {AdvancedSearchResultPageModule} from "../pages/advanced-search-result/advanced-search-result.module";
 import {Keyboard} from "@ionic-native/keyboard";
-import {FingerprintAIO} from "@ionic-native/fingerprint-aio";
-import {AndroidFingerprintAuth} from "@ionic-native/android-fingerprint-auth";
+import { FingerprintAIO } from "@ionic-native/fingerprint-aio";
 import {AdminMessagesPageModule} from "../pages/admin-messages/admin-messages.module";
 import {ProfilePage} from "../pages/profile/profile";
 import {AppVersion} from "@ionic-native/app-version";
@@ -33,6 +32,7 @@ import {SelectPageModule} from "../pages/select/select.module";
 import {InAppPurchase} from "@ionic-native/in-app-purchase";
 import {ActivationPageModule} from "../pages/activation/activation.module";
 import {InAppBrowser} from "@ionic-native/in-app-browser";
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
     declarations: [
@@ -44,6 +44,7 @@ import {InAppBrowser} from "@ionic-native/in-app-browser";
     ],
     imports: [
         BrowserModule,
+        HttpClientModule,
        IonicModule.forRoot(MyApp, {
             menuType: 'overlay',
             scrollAssist: false,
@@ -75,7 +76,6 @@ import {InAppBrowser} from "@ionic-native/in-app-browser";
         Keyboard,
         StatusBar,
         SplashScreen,
-        AndroidFingerprintAuth,
         InAppBrowser,
         Device,
         Geolocation,
@@ -84,7 +84,6 @@ import {InAppBrowser} from "@ionic-native/in-app-browser";
         FileTransfer,
         Camera,
         {provide: ErrorHandler, useClass: IonicErrorHandler},
-        //{ provide: AndroidFingerprintAuth, useClass: FingerMock },
         ApiQuery, Media, File, AppVersion
     ]
 })

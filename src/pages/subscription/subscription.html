@@ -14,35 +14,29 @@
 
 
 <ion-content>
-    <div class="android" *ngIf="platform === 'android'" id="innerPageHolder" data-userway-font-size="10">
-        <div id="massBoxIn" class="prices" data-userway-font-size="10">
-            <h2 data-userway-font-size="18">רכישת מנוי בריצ'דייט</h2>
-            <div [innerHtml]="dataPage?.android.textBefore" style="font-size: 13px;color: #c8c8c9;text-align:center;" data-userway-font-size="13">
-
+    <div class="android" *ngIf="platform === 'android'" id="innerPageHolder">
+        <div id="massBoxIn" class="prices">
+            <h2>רכישת מנוי בריצ'דייט</h2>
+            <div [innerHtml]="dataPage?.android.textBefore" style="font-size: 13px;color: #c8c8c9;text-align:center;">
             </div>
-            <p style="font-size: 16px;color: #c8c8c9;text-align:center;margin: 5px 0px 0px;"
-               data-userway-font-size="16">בכל שאלה/הבהרה לגבי מנוי באתר ניתן לפנות אלינו גם בטלפון <a
-                    style="color:inherit;text-decoration:underline;" href="tel:053-7006230" class="ui-link"
-                    data-userway-font-size="16">053-7006230</a> בין השעות 9:00 ועד 17:00</p>
+
+            <div *ngIf="dataPage?.android?.form" class="form">{{ dataPage.android.form.text }} <input [(ngModel)]="coupon" type="text" /> <input type="submit" value="{{ dataPage.android.form.button }}" (click)="getPage()"></div>
+
             <div *ngFor="let product of products" class="subs"
-                 (click)="goto(product)"
-                 data-userway-font-size="10">
-                <a href="#" title="title" class="ui-link" data-userway-font-size="11">
-                    <span style="width: 175px;" class="subsTitle"
-                          data-userway-font-size="15">{{product.title}}</span>
+                 (click)="goto(product)">
+                <a href="#" title="title" class="ui-link">
+                    <span style="width: 175px;" class="subsTitle">{{product.title}}</span>
                     {{product.text}}
-                    <br
-                        data-userway-font-size="11">
-                    <div class="subsPrice" data-userway-font-size="17">
-                        ₪<span data-userway-font-size="35">{{product.price}}</span>
-                        <span class="month" data-userway-font-size="17">לחודש</span>
+                    <br>
+                    <div class="subsPrice">
+                        ₪<span>{{product.price}}</span>
+                        <span class="month">לחודש</span>
                     </div><!--subsPrice-->
-                    <div class="subsBut" data-userway-font-size="11"></div>
+                    <div class="subsBut"></div>
                 </a>
             </div><!--subs-->
-            <!--<a href="#" title="Title" class="purcSubs">לרכישה</a>-->
-            <div class="clear" data-userway-font-size="10"><!--clear--></div>
-            <div [innerHtml]="dataPage?.android.textAfter" style="font-size: 13px;color: #c8c8c9;text-align:center;" data-userway-font-size="13">
+            <div class="clear"><!--clear--></div>
+            <div [innerHtml]="dataPage?.android.textAfter" style="font-size: 13px;color: #c8c8c9;text-align:center;">
             </div>
         </div><!--result-->
     </div>

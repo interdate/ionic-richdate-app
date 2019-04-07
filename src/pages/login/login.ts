@@ -4,7 +4,6 @@ import {HomePage} from "../home/home";
 import {ApiQuery} from "../../library/api-query";
 import {Storage} from "@ionic/storage";
 import {FingerprintAIO} from "@ionic-native/fingerprint-aio";
-import {Http, Headers, RequestOptions, Response} from "@angular/http";
 import "rxjs/add/operator/catch";
 import "rxjs/add/operator/map";
 import {RegisterPage} from "../register/register";
@@ -12,6 +11,7 @@ import * as $ from "jquery";
 import {SubscriptionPage} from "../subscription/subscription";
 import {ChangePhotosPage} from "../change-photos/change-photos";
 import {ActivationPage} from "../activation/activation";
+import {HttpHeaders} from "@angular/common/http";
 
 /**
  * Generated class for the LoginPage page.
@@ -29,7 +29,7 @@ export class LoginPage {
 
     form: { errors: any, login: any } = {errors: {}, login: {username: {label: ''}, password: {label: ''}}};
     errors: any;
-    header: RequestOptions;
+    header: any;
     user: any = {id: '', name: ''};
     fingerAuth: any;
     enableFingerAuth: any;
@@ -37,7 +37,6 @@ export class LoginPage {
 
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
-                public http: Http,
                 public api: ApiQuery,
                 public storage: Storage,
                 public loadingCtrl: LoadingController,
@@ -45,8 +44,8 @@ export class LoginPage {
                 private faio: FingerprintAIO,
                 private platform: Platform) {
 
-        this.http.get(api.url + '/user/form/login', api.setHeaders(false)).subscribe(data => {
-            this.form = data.json();
+        this.api.http.get(api.url + '/user/form/login', api.setHeaders1(false)).subscribe((data:any) => {
+            this.form = data;
 
             this.storage.get('fingerAuth').then((val) => {
                 this.faio.isAvailable().then(result => {
@@ -67,6 +66,7 @@ export class LoginPage {
         if (navParams.get('page') && navParams.get('page')._id == "logout") {
 
             this.api.setHeaders(false, null, null);
+            this.api.setHeaders1(false, null, null);
             // Removing data storage
             this.api.username = null;
             this.api.password = null;
@@ -95,38 +95,40 @@ export class LoginPage {
             password = "nopassword";
         }
 
-        this.http.post(this.api.url + '/user/login/', '', this.setHeaders()).map((res: Response) => res.json()).subscribe(data => { //.map((res: Response) => res.json())
+        this.api.http.post(this.api.url + '/user/login/', '', this.setHeaders(username,password)).subscribe(data => {
 
             setTimeout(function () {
-                this.errors = 'משתמש זה נחסם על ידי הנהלת האתר';
+                //this.errors = 'משתמש זה נחסם על ידי הנהלת האתר';
             }, 300);
 
             this.validate(data);
 
         }, err => {
-            //console.log(err.status);
-            type == 'fingerprint' ? '' : this.errors = err.text();
+            console.log(err);
+            if(type != 'fingerprint'){
+                this.errors = err.error;
+            }
 
         });
     }
 
-    setHeaders() {
-        let myHeaders: Headers = new Headers;
-        myHeaders.append('Content-type', 'application/json');
-        myHeaders.append('Accept', '*/*');
-        myHeaders.append('Access-Control-Allow-Origin', '*');
-        myHeaders.append("Authorization", "Basic " + btoa(encodeURIComponent(this.form.login.username.value) + ':' + encodeURIComponent(this.form.login.password.value)));
+    setHeaders(username,password) {
+        let myHeaders = new HttpHeaders();
+        myHeaders = myHeaders.append('Content-type', 'application/json');
+        myHeaders = myHeaders.append('Accept', '*/*');
+        myHeaders = myHeaders.append('Access-Control-Allow-Origin', '*');
+        myHeaders = myHeaders.append("Authorization", "Basic " + btoa(username + ':' + password));
 
-        this.header = new RequestOptions({
+        this.header = {
             headers: myHeaders
-        });
+        };
         return this.header;
     }
 
     fingerAuthentication() {
 
         this.faio.show({
-            clientId: 'com.interdate.kosherdate',
+            clientId: 'com.interdate.richdate',
             //clientSecret: 'password', //Only necessary for Android
             clientSecret: 'password', //Only necessary for Android
             disableBackup:true,  //Only for Android(optional)
@@ -157,6 +159,7 @@ export class LoginPage {
             this.storage.set('user_photo', response.photo);
 
             this.api.setHeaders(true, this.form.login.username.value, this.form.login.password.value);
+            this.api.setHeaders1(true, this.form.login.username.value, this.form.login.password.value);
         }
         if (response.status) {
             let data = {

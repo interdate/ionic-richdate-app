@@ -127,9 +127,6 @@
     <plugin name="ionic-plugin-keyboard" spec="^2.2.1" />
     <allow-navigation href="http://10.0.0.5:8100" />
     <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
-    <engine name="android" spec="~6.4.0" />
-    <engine name="browser" spec="~5.0.4" />
-    <engine name="ios" spec="~4.5.5" />
     <plugin name="ionic-plugin-deeplinks" spec="^1.0.17">
         <variable name="URL_SCHEME" value="zigzug" />
         <variable name="DEEPLINK_SCHEME" value="https" />
@@ -148,4 +145,6 @@
         <variable name="DEEPLINK_5_SCHEME" value=" " />
         <variable name="DEEPLINK_5_HOST" value=" " />
     </plugin>
+    <engine name="browser" spec="5.0.4" />
+    <engine name="ios" spec="4.5.4" />
 </widget>

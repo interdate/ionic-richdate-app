@@ -258,5 +258,22 @@ page-subscription {
     }
   }
 
+  .form{
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .form input{
+    max-width: 80px;
+    margin-right: 5px;
+    color: #000;
+  }
+
+  .form input[type="submit"]{
+    background: grey;
+    border-radius: 5px;
+    color: #fff;
+  }
+
 }
 

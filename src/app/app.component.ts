@@ -12,7 +12,6 @@ import {
 } from "ionic-angular";
 import {Market} from "@ionic-native/market";
 import {Push, PushObject, PushOptions} from "@ionic-native/push";
-import {Http} from "@angular/http";
 import {StatusBar} from "@ionic-native/status-bar";
 import {SplashScreen} from "@ionic-native/splash-screen";
 import {ApiQuery} from "../library/api-query";
@@ -71,7 +70,6 @@ export class MyApp {
                 public menu: MenuController,
                 public splashScreen: SplashScreen,
                 public appVersion: AppVersion,
-                public http: Http,
                 public statusBar: StatusBar,
                 public api: ApiQuery,
                 public storage: Storage,
@@ -87,10 +85,10 @@ export class MyApp {
 // set status bar to white
         //this.statusBar.styleBlackTranslucent();
 
-        this.http.get(api.url + '/user/menu/', api.header).subscribe(data => {
+        this.api.http.get(api.url + '/user/menu/', api.header1).subscribe((data: any) => {
 
-            let menu = data.json().menu;
-            this.api.resultsPerPage = data.json().resultsPerPage;
+            let menu = data.menu;
+            this.api.resultsPerPage = data.resultsPerPage;
             this.initMenuItems(menu);
 
             this.storage.get('user_id').then((val) => {
@@ -127,28 +125,28 @@ export class MyApp {
     }
 
     getAppVersion() {
-        this.http.get(this.api.url + '/open_api/version', this.api.header).subscribe(data => {
+        this.api.http.get(this.api.url + '/open_api/version', this.api.header1).subscribe((data: any) => {
 
-            //console.log(data.json().android.version );
+            //console.log(data.android.version );
             //console.log(this.platform.is('android') );
 
             //alert(this.appVersion.getVersionCode());
             this.appVersion.getVersionNumber().then((s) => {
-                if (data.json().android.version != s && this.platform.is('android')) {
+                if (data.android.version != s && this.platform.is('android')) {
                     let prompt = this.alertCtrl.create({
-                        title: data.json().title,
-                        message: data.json().message,
+                        title: data.title,
+                        message: data.message,
                         cssClass: 'new-version',
                         buttons: [
                             {
-                                text: data.json().cancel,
-                                handler: data => {
+                                text: data.cancel,
+                                handler: res => {
                                     console.log('Cancel clicked');
                                 }
                             },
                             {
-                                text: data.json().update,
-                                handler: data => {
+                                text: data.update,
+                                handler: res1 => {
                                     window.open('market://details?id=com.interdate.kosherdate', '_system');
                                 }
                             }
@@ -181,11 +179,11 @@ export class MyApp {
                     headers = this.api.setHeaders(true, false, false, '1');
                 }
 
-                this.http.get(this.api.url + '/user/statistics/', this.api.setHeaders(true)).subscribe(data => {
+                this.api.http.get(this.api.url + '/user/statistics/', this.api.setHeaders1(true)).subscribe((data: any) => {
 
-                    let statistics = data.json().statistics;
+                    let statistics = data.statistics;
 
-                    this.status = data.json().status;
+                    this.status = data.status;
                     this.api.status = this.status;
 
                     this.menu_items_login.push();
@@ -270,6 +268,7 @@ export class MyApp {
 
     clearLocalStorage() {
         this.api.setHeaders(false, null, null);
+        this.api.setHeaders1(false, null, null);
         // Removing data storage
         this.storage.remove('status');
         this.storage.remove('password');
@@ -498,16 +497,18 @@ export class MyApp {
     }
 
     initializeApp() {
-        this.platform.ready().then(() => {
-            // Okay, so the platform is ready and our plugins are available.
-            // Here you can do any higher level native things you might need
-            this.statusBar.show();
-            this.statusBar.styleBlackOpaque();
-            this.statusBar.backgroundColorByName('black');
+        this.platform.ready().then((readySource) => {
+            if(readySource=='cordova') {
+                // Okay, so the platform is ready and our plugins are available.
+                // Here you can do any higher level native things you might need
+                this.statusBar.show();
+                this.statusBar.styleBlackOpaque();
+                this.statusBar.backgroundColorByName('black');
 
-            /*setTimeout(function () {
-             this.splashScreen.hide();
-             },1000);*/
+                /*setTimeout(function () {
+                 this.splashScreen.hide();
+                 },1000);*/
+            }
         });
     }
 
@@ -578,8 +579,8 @@ export class MyApp {
     }
 
     getBanner() {
-        this.http.get(this.api.url + '/user/banner', this.api.header).subscribe(data => {
-            this.banner = data.json();
+        this.api.http.get(this.api.url + '/user/banner', this.api.header1).subscribe((data:any) => {
+            this.banner = data;
         });
     }
 
@@ -656,24 +657,24 @@ export class MyApp {
     getBingo() {
         this.storage.get('user_id').then((val) => {
             if (val && this.api.password) {
-                this.http.get(this.api.url + '/user/bingo', this.api.setHeaders(true)).subscribe(data => {
+                this.api.http.get(this.api.url + '/user/bingo', this.api.setHeaders1(true)).subscribe((data:any) => {
                     //this.storage.set('status', this.status);
-                    this.texts = data.json().texts;
-                    this.avatar = data.json().texts.avatar;
+                    this.texts = data.texts;
+                    this.avatar = data.texts.avatar;
                     // DO NOT DELETE
-                    /*if (this.status != data.json().status) {
-                     this.status = data.json().status;
+                    /*if (this.status != data.status) {
+                     this.status = data.status;
                      this.checkStatus();
                      } else {
-                     this.status = data.json().status;
+                     this.status = data.status;
                      }*/
-                    console.log(data.json());
-                    if (data.json().texts.items && data.json().texts.items.length > 0) {
+                    console.log(data);
+                    if (data.texts.items && data.texts.items.length > 0) {
                         let params = JSON.stringify({
-                            bingo: data.json().texts.items[0]
+                            bingo: data.texts.items[0]
                         });
-                        this.nav.push('BingoPage', {data: data.json()});
-                        this.http.post(this.api.url + '/user/bingo/splashed', params, this.api.setHeaders(true)).subscribe(data => {
+                        this.nav.push('BingoPage', {data: data});
+                        this.api.http.post(this.api.url + '/user/bingo/splashed', params, this.api.setHeaders1(true)).subscribe((data:any) => {
                         });
                     }
                 });
@@ -690,22 +691,22 @@ export class MyApp {
     getMessage() {
         //let page = this.nav.getActive();
         /*
-         this.http.get(this.api.url + '/user/new/messages', this.api.setHeaders(true)).subscribe(data => {
+         this.api.http.get(this.api.url + '/user/new/messages', this.api.setHeaders1(true)).subscribe((data: any) => {
 
          if ((this.new_message == '' || typeof this.new_message == 'undefined') && !(this.api.pageName == 'DialogPage')) {
-         this.new_message = data.json().messages[0];
+         this.new_message = data.messages[0];
          if (typeof this.new_message == 'object') {
          this.http.get(this.api.url + '/user/messages/notify/' + this.new_message.id, this.api.setHeaders(true)).subscribe(data => {
          });
          }
          }
 
-         this.message = data.json();
+         this.message = data;
 
-         this.menu_items[2].count = data.json().newNotificationsNumber;
-         this.menu_items[0].count = data.json().newMessagesNumber;
-         this.menu_items_footer2[2].count = data.json().newNotificationsNumber;
-         this.menu_items_footer1[3].count = data.json().newMessagesNumber;
+         this.menu_items[2].count = data.newNotificationsNumber;
+         this.menu_items[0].count = data.newMessagesNumber;
+         this.menu_items_footer2[2].count = data.newNotificationsNumber;
+         this.menu_items_footer1[3].count = data.newMessagesNumber;
          });
          */
     }

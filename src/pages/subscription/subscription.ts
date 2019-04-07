@@ -1,7 +1,6 @@
 import {Component} from "@angular/core";
 import {IonicPage, NavController, NavParams, Platform} from "ionic-angular";
 import {ApiQuery} from "../../library/api-query";
-import {Http} from "@angular/http";
 import {InAppPurchase} from "@ionic-native/in-app-purchase";
 import {HomePage} from "../home/home";
 import {Page} from "../page/page";
@@ -25,10 +24,10 @@ export class SubscriptionPage {
   checkStatus: any;
   public platform: any = 'ios';
   products: any = [];
+  public coupon: any;
 
   constructor(public navCtrl: NavController,
               public navParams: NavParams,
-              public http: Http,
               public plt: Platform,
               public iap: InAppPurchase,
               private iab: InAppBrowser,
@@ -78,9 +77,10 @@ export class SubscriptionPage {
         .then((data)=> {
           if(parseInt(data.transactionId) > 0){
             this.api.presentToast('Congratulations on your purchase of a paid subscription to richdate.co.il', 10000);
-            this.http.post(this.api.url + '/user/subscription/monthsNumber:' + monthsNumber, data, this.api.setHeaders(true)).subscribe(data => {
-              this.navCtrl.push(HomePage);
-            }, err => {
+            this.api.http.post(this.api.url + '/user/subscription/monthsNumber:' + monthsNumber, data, this.api.setHeaders1(true)).subscribe(
+              (data: any) => {
+                this.navCtrl.push(HomePage);
+              }, err => {
             });
           }
           this.api.hideLoad();
@@ -91,8 +91,8 @@ export class SubscriptionPage {
   }
 
   sendSubscribe(history){
-    this.http.post(this.api.url + '/user/restore', JSON.stringify(history), this.api.setHeaders(true)).subscribe(data => {
-      if(data.json().payment == 1) {
+    this.api.http.post(this.api.url + '/user/restore', JSON.stringify(history), this.api.setHeaders1(true)).subscribe((data: any) => {
+      if(data.payment == 1) {
         this.navCtrl.push(HomePage);
       }
     });
@@ -152,25 +152,20 @@ export class SubscriptionPage {
   }
 
   getPage() {
-
+    //alert(this.coupon);
     this.api.showLoad();
+    let coupon = !this.coupon ? '0' : this.coupon;
+    this.coupon = '';
+    this.api.http.get(this.api.url + '/user/subscriptions/' + coupon, this.api.setHeaders1(true)).subscribe((data:any) => {
 
-    this.http.get(this.api.url + '/user/subscriptions', this.api.setHeaders(true)).subscribe(data => {
-
-      this.products = data.json().subscription.payments;
-      this.dataPage = data.json().subscription;
+      this.products = data.subscription.payments;
+      this.dataPage = data.subscription;
 
 
       if (this.plt.is('android')) {
 
         this.platform = 'android';
 
-        /*this.http.get(this.api.url + '/subscription', this.api.setHeaders(true)).subscribe(data => {
-
-         this.dataPage = data.json();
-         }, err => {
-         //alert(JSON.stringify(err));
-         });*/
         this.api.hideLoad();
 
       }else{
