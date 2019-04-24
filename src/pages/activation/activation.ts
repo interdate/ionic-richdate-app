@@ -51,7 +51,7 @@ export class ActivationPage {
                this.form.res = resp.json().code;
                */
                this.form.errorMessage = resp.json().activation;
-
+              this.api.status = 1;
 
 
               this.api.hideLoad();

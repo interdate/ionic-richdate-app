@@ -252,6 +252,10 @@ export class HomePage {
             });
 
             toast.present();
+
+            if(this.params.list == 'fav'){
+                this.users.splice(this.users.indexOf(user), 1);
+            }
             this.events.publish('statistics:updated');
         });
     }

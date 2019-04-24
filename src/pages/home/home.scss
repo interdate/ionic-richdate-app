@@ -268,7 +268,7 @@ ion-card {
   background-size: contain;
 }
 
-#add-green,  #remove-green {
+#add-green {
   background: url(../assets/img/icons/fav-red.png) center no-repeat;
   width: 20px;
   height: 20px;
@@ -278,6 +278,8 @@ ion-card {
 #remove-green {
   background: url(../assets/img/icons/cap.png) center no-repeat;
   background-size: contain;
+  width: 20px;
+  height: 20px;
 }
 
 #like-red {

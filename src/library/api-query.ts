@@ -40,7 +40,7 @@ export class ApiQuery {
                 public keyboard: Keyboard,
                 public plt: Platform) {
       //this.url = 'http://10.0.0.12:8100';
-      //this.url = 'http://localhost:8100';
+      //this.url = 'http://localhost:8101';
       this.url = 'https://m.richdate.co.il/api/v8';
 
         this.storage.get('user_id').then((val) => {

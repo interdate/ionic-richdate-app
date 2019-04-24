@@ -885,6 +885,11 @@ ion-footer.footer-ios::before {
   background-image: none;
 }
 
+#remove-green {
+  background: url(../assets/img/icons/cap.png) center no-repeat;
+  background-size: contain;
+}
+
 @media (max-width: 375px) {
   
   .footer-menu .menu-two li {
