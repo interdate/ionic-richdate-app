@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {IonicPage, NavController, NavParams, LoadingController, Platform} from 'ionic-angular';
+import {IonicPage, NavController, NavParams, Platform} from 'ionic-angular';
 import {ApiQuery} from '../../library/api-query';
 import {Http} from '@angular/http';
 import { HomePage } from '../home/home';
@@ -34,7 +34,6 @@ export class ActivationPage {
   os: any;
 
   constructor(public navCtrl: NavController,
-              public loadingCtrl: LoadingController,
               public navParams: NavParams,
               public api: ApiQuery,
               public  platform: Platform,
@@ -45,17 +44,7 @@ export class ActivationPage {
 
   getForm(data = '') {
 
-      let loading = this.loadingCtrl.create({
-          content: 'אנא המתן...'
-      });
 
-      //window.open('https://www.m.richdate.co.il/activateSMS/?app=1&&app=1', '_system');
-
-      if(this.platform.is('android')) {
-          this.os = 'android';
-          window.open('https://www.m.richdate.co.il/activateSMS/?app=1&&app=1', '_blank');
-      }else{
-          this.os = 'iOS';
           this.http.post(this.api.url + '/user/activate', data, this.api.setHeaders(true)).subscribe(resp => {
               /*
                this.form = resp.json().form;
@@ -65,7 +54,7 @@ export class ActivationPage {
 
 
 
-              loading.dismiss();
+              this.api.hideLoad();
               /*
                if (this.form.res) {
                this.api.status = 'login';
@@ -75,12 +64,14 @@ export class ActivationPage {
                }*/
 
           }, err => {
+              this.api.hideLoad();
               this.navCtrl.push(LoginPage);
           });
-      }
+
   }
 
   formSubmit() {
+      this.api.showLoad();
       let params = '';
           params = JSON.stringify({
               code: this.form.code.value

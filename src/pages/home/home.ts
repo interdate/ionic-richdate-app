@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {NavController, NavParams, LoadingController, ToastController, Events, InfiniteScroll} from 'ionic-angular';
+import {NavController, NavParams, ToastController, Events, InfiniteScroll} from 'ionic-angular';
 import {Http} from '@angular/http';
 import {Storage} from '@ionic/storage';
 import {ApiQuery} from '../../library/api-query';
@@ -42,7 +42,6 @@ export class HomePage {
     selectOptions = {title: 'popover select'};
 
     constructor(public toastCtrl: ToastController,
-                public loadingCtrl: LoadingController,
                 public navCtrl: NavController,
                 public navParams: NavParams,
                 public http: Http,
@@ -286,17 +285,15 @@ export class HomePage {
 
     getUsers() {
 
-        let loading = this.loadingCtrl.create({
-            content: 'אנא המתן...'
-        });
+
 
         if (this.navParams.get('params') == 'login') {
-            //loading.present();
+            //this.api.showLoad();
             this.username = this.navParams.get('username');
             this.password = this.navParams.get('password');
 
             this.http.post(this.api.url + '/users/search/', this.params_str, this.api.setHeaders(true, this.username, this.password)).subscribe(data => {
-                loading.dismiss();
+                this.api.hideLoad();
                 this.users = data.json().users.items;
                 this.texts = data.json().texts;
                 this.user_counter = data.json().users.items.length;
@@ -309,10 +306,10 @@ export class HomePage {
             });
         } else {
             //alert(this.params_str);
-            loading.present();
+            this.api.showLoad();
 
             this.http.post(this.api.url + '/users/search/', this.params_str, this.api.setHeaders(true)).subscribe(data => {
-                loading.dismiss();
+                this.api.hideLoad();
                 this.users = data.json().users.items;
                 this.texts = data.json().texts;
                 this.user_counter = data.json().users.items.length;

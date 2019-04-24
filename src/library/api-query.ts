@@ -102,12 +102,13 @@ export class ApiQuery {
     }
 
     showLoad(txt = 'אנא המתן...') {
+        if (this.isLoaderUndefined()) {
+            this.loading = this.loadingCtrl.create({
+                content: txt
+            });
 
-        this.loading = this.loadingCtrl.create({
-         content: txt
-         });
-
-         this.loading.present();
+            this.loading.present();
+        }
     }
 
     functiontofindIndexByKeyValue(arraytosearch, key, valuetosearch) {

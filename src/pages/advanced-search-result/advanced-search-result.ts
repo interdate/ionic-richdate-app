@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {Http} from "@angular/http";
 import {Storage} from "@ionic/storage";
-import {NavController, NavParams, LoadingController, ToastController, Events} from "ionic-angular";
+import {NavController, NavParams, ToastController, Events} from "ionic-angular";
 import {ApiQuery} from "../../library/api-query";
 import {ProfilePage} from "../profile/profile";
 import {DialogPage} from "../dialog/dialog";
@@ -39,7 +39,6 @@ export class AdvancedSearchResultPage {
 
 
     constructor(public toastCtrl: ToastController,
-                public loadingCtrl: LoadingController,
                 public navCtrl: NavController,
                 public navParams: NavParams,
                 public http: Http,

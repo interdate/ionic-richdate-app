@@ -7,8 +7,7 @@ import {
     ToastController,
     Content,
     AlertController,
-    Events,
-    LoadingController
+    Events
 } from "ionic-angular";
 import {Market} from "@ionic-native/market";
 import {Push, PushObject, PushOptions} from "@ionic-native/push";
@@ -63,6 +62,8 @@ export class MyApp {
     new_message: any = '';
     message: any = {};
     avatar: string = '';
+    isPay: any;
+    is2D: any;
     stats: string = '';
     interval: any = true;
 
@@ -77,7 +78,6 @@ export class MyApp {
                 public alertCtrl: AlertController,
                 public events: Events,
                 public market: Market,
-                public loadingCtrl: LoadingController,
                 public push: Push) {
 
         // let status bar overlay webview
@@ -206,11 +206,15 @@ export class MyApp {
                     this.menu_items_footer2[0].count = statistics.fav;//favorited
                     this.menu_items_footer2[1].count = statistics.favedme;//favoritedMe
 
-                    if (this.api.pageName != 'SubscriptionPage' && this.api.pageName != 'PagePage' && this.status === 'nopay') {
-                        this.status = 1;
+                    this.is2D = data.is2D;
+                    this.isPay = data.isPay;
+
+                    if (this.api.pageName != 'LoginPage' && this.api.pageName != 'SubscriptionPage' && this.api.pageName != 'ContactUsPage' && this.api.pageName != 'PagePage' && this.isPay == 0 && this.is2D == 0) {
+                        //this.status = 1;
                         this.nav.setRoot(SubscriptionPage);
-                    } else if (this.api.pageName != 'ChangePhotosPage' && this.status === 'noimg') {
-                        this.status = 1;
+                    }
+                    else if (this.api.pageName != 'ChangePhotosPage' && this.status === 'noimg') {
+                        //this.status = 1;
                         let toast = this.toastCtrl.create({
                             message: "לכניסה לאתר ריצ'דייט יש להעלות תמונה",
                             duration: 3000
@@ -219,7 +223,7 @@ export class MyApp {
                         toast.present();
                         this.nav.setRoot(ChangePhotosPage);
                     } else if (this.api.pageName != 'ChangePhotosPage' && this.api.pageName != 'ActivationPage' && this.status === 'notActivated') {
-                        this.status = 1;
+                        //this.status = 1;
                         this.nav.setRoot(ActivationPage);
                     }
 
@@ -233,7 +237,8 @@ export class MyApp {
                         this.nav.setRoot(HomePage);
                     }
 
-                    if ((this.api.pageName == 'SubscriptionPage' && this.status == true) ) {
+                    //
+                    if ((this.api.pageName == 'SubscriptionPage' && this.isPay == 1) ) {
                         this.nav.setRoot(HomePage);
                     }
 
@@ -310,12 +315,8 @@ export class MyApp {
              {_id: '', icon: 'information-circle', title: 'שאלות נפוצות', component: 'FaqPage', count: ''},
              */
             {_id: '', icon: 'mail', title: menu.contact_us, component: 'ContactUsPage', count: ''},
+            {_id: 'subscribe', icon: 'ribbon', title: 'רכישת מנוי', component: SubscriptionPage, count: ''},
 
-            /*
-            {_id: '', icon: 'mail', title: menu.contact_us, component: 'SubscriptionPage', count: ''},
-
-             {_id: 'subscribe', icon: 'ribbon', title: 'רכישת מנוי', component: SubscriptionPage, count: ''},
-             */
 
         ];
 
@@ -717,7 +718,6 @@ export class MyApp {
         if (!(this.api.pageName == 'ActivationPage') && !(this.api.pageName == 'ContactUsPage') && !(this.api.pageName == 'ChangePhotosPage') && !(this.api.pageName == 'RegistrationThreePage')
             && !(this.api.pageName == 'RegisterPage') && !(this.api.pageName == 'TermsPage')) {
             if (this.status == 'no_photo') {
-
                 let toast = this.toastCtrl.create({
                     message: this.texts.photoMessage,
                     showCloseButton: true,
@@ -782,9 +782,11 @@ export class MyApp {
             //});
 
             //let page = this.nav.getActive();
-
-            if (this.api.pageName != 'SubscriptionPage' && this.api.pageName != 'PagePage' && this.status === 'nopay') {
-                this.status = 1;
+            if (this.api.status != '') {
+                this.status = this.api.status;
+            }
+            if (this.api.pageName != 'LoginPage' && this.api.pageName != 'SubscriptionPage' && this.api.pageName != 'ContactUsPage' && this.api.pageName != 'PagePage' && this.isPay == 0 && this.is2D == 0 && this.status == 1) {
+                //this.status = 1;
                 this.nav.setRoot(SubscriptionPage);
             } else if (this.api.pageName != 'ChangePhotosPage' && this.status === 'noimg') {
                 this.status = 1;
@@ -800,11 +802,11 @@ export class MyApp {
                 this.nav.setRoot(ActivationPage);
             }
 
-            if (this.api.pageName == 'HomePage') {
-                if (this.api.status != '') {
-                    this.status = this.api.status;
-                }
-            }
+            // if (this.api.pageName == 'HomePage') {
+            //     if (this.api.status != '') {
+            //         this.status = this.api.status;
+            //     }
+            // }
 
             if (this.api.pageName == 'DialogPage' || this.api.pageName == 'SubscriptionPage') {
                 $('.footerMenu').hide();

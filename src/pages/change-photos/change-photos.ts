@@ -4,8 +4,7 @@ import {
     NavController,
     NavParams,
     ActionSheetController,
-    AlertController,
-    LoadingController
+    AlertController
 } from "ionic-angular";
 import {Camera} from "@ionic-native/camera";
 import {FileTransfer} from "@ionic-native/file-transfer";
@@ -48,7 +47,6 @@ export class ChangePhotosPage {
                 public http: Http,
                 public api: ApiQuery,
                 public storage: Storage,
-                public loadingCtrl: LoadingController,
                 public camera: Camera,
                 public  fileTransfer: FileTransfer,
                 public imagePicker: ImagePicker) {
@@ -280,11 +278,7 @@ export class ChangePhotosPage {
 
     uploadPhoto(url) {
 
-        let loading = this.loadingCtrl.create({
-            content: 'אנא המתן...'
-        });
-
-        loading.present();
+        this.api.showLoad();
 
         this.storage.get('user_id').then((val) => {
 
@@ -300,10 +294,10 @@ export class ChangePhotosPage {
 
             filetransfer.upload(url, this.api.url + '/user/image', options).then((entry) => {
                 this.navCtrl.push(ChangePhotosPage, {});
-                loading.dismiss();
+                this.api.hideLoad();
             }, (err) => {
                 //alert(JSON.stringify(err));
-                loading.dismiss();
+                this.api.hideLoad();
             });
         });
     }

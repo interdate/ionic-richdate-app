@@ -1,5 +1,5 @@
 import {Component, ViewChild} from "@angular/core";
-import { NavController, NavParams, Nav, ToastController, Content, LoadingController} from "ionic-angular";
+import { NavController, NavParams, Nav, ToastController, Content} from "ionic-angular";
 import {Http} from "@angular/http";
 import {ApiQuery} from "../../library/api-query";
 import {Storage} from "@ionic/storage";
@@ -37,17 +37,12 @@ export class ProfilePage {
                 public navCtrl: NavController,
                 public navParams: NavParams,
                 public http: Http,
-                public loadingCtrl: LoadingController,
                 public api: ApiQuery,
                 public storage: Storage) {
 
         this.storage = storage;
 
-        let loading = this.loadingCtrl.create({
-            content: 'אנא המתן...'
-        });
-
-        //loading.present();
+        //this.api.showLoad();
 
         var user = navParams.get('user');
 
@@ -63,7 +58,7 @@ export class ProfilePage {
                 this.user = data.json();
                 this.formReportAbuse = data.json().formReportAbuse;
                 this.texts = data.json().texts;
-                loading.dismiss();
+                this.api.hideLoad();
                 this.imageClick = true;
             });
         } else {
@@ -77,7 +72,7 @@ export class ProfilePage {
 
                         this.formReportAbuse = data.json().formReportAbuse;
                         this.texts = data.json().texts;
-                        loading.dismiss();
+                        this.api.hideLoad();
                         this.imageClick = true;
                     });
                 }

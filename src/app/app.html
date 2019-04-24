@@ -35,7 +35,7 @@
                 <div (click)="openPage(menu_items_settings[2])" class="username">{{ username }}</div>
             </div>
             <div *ngFor="let menu_item of menu_items">
-                <button *ngIf="(menu_item._id == 'subscribe' && status == 'nopay') || menu_item._id != 'subscribe'" ion-item (click)="openPage(menu_item)">
+                <button *ngIf="(menu_item._id == 'subscribe' && isPay == '0') || menu_item._id != 'subscribe'" ion-item (click)="openPage(menu_item)">
                     <ion-icon id="{{menu_item._id}}" name="{{menu_item.icon}}"></ion-icon>
                     {{menu_item.title}}
                     <ion-icon class="contact-arrow" *ngIf="menu_item._id == 'stats'" ios="ios-arrow-forward"

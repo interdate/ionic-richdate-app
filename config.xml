@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.interdate.richdate" version="1.9.7" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.interdate.richdate" version="2.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>RichDate</name>
-    <description>RichDate</description>
+    <description>הכרויות לעשירים | שוגר דדי | ריצ'דייט</description>
     <author email="contact@interdate-ltd.co.il" href="http://interdate-ltd.co.il/en">Interdate Team</author>
     <content src="index.html" />
     <access origin="*" />

@@ -14,9 +14,9 @@
 
 
 <ion-content>
-    <div *ngIf="os == 'iOS'">
+    <div>
         <div padding>
-            לצורך הפעלת החשבון יש להזין את מספר הטלפון ואת הקוד שנשלח אלייך ב SMS
+            לצורך הפעלת החשבון יש להזין את הקוד שנשלח אלייך ב SMS
         </div>
         <ion-item>
             <ion-input *ngIf="form.code" [(ngModel)]="form.code.value"

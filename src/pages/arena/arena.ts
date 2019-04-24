@@ -1,5 +1,5 @@
 import { Component, ViewChild, Injectable } from '@angular/core';
-import { IonicPage, NavController, NavParams, Slides, ToastController, LoadingController, Events } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, Slides, ToastController, Events } from 'ionic-angular';
 import {ApiQuery} from '../../library/api-query';
 import {Http} from '@angular/http';
 import {ChangePhotosPage} from "../change-photos/change-photos";
@@ -32,17 +32,13 @@ export class ArenaPage {
                 public toastCtrl: ToastController,
                 public navParams: NavParams,
                 public http: Http,
-                public loadingCtrl: LoadingController,
                 public events: Events,
                 public api: ApiQuery) {
 
         let user_id = 0;
 
-        let loading = this.loadingCtrl.create({
-            content: 'אנא המתן...'
-        });
 
-        loading.present();
+        this.api.showLoad();
 
         if (navParams.get('user')) {
             user_id = navParams.get('user');
@@ -54,7 +50,7 @@ export class ArenaPage {
          });*/
 
         this.http.get(api.url + '/users/forLikes/'+user_id+'/0', api.setHeaders(true)).subscribe(data => {
-            loading.dismiss();
+            this.api.hideLoad();
             this.users = data.json().users.items;
             this.texts = data.json().texts;
 

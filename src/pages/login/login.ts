@@ -1,5 +1,5 @@
 import {Component} from "@angular/core";
-import {IonicPage, NavController, NavParams, LoadingController, ToastController, Platform} from "ionic-angular";
+import {IonicPage, NavController, NavParams, ToastController, Platform} from "ionic-angular";
 import {HomePage} from "../home/home";
 import {ApiQuery} from "../../library/api-query";
 import {Storage} from "@ionic/storage";
@@ -39,7 +39,6 @@ export class LoginPage {
                 public navParams: NavParams,
                 public api: ApiQuery,
                 public storage: Storage,
-                public loadingCtrl: LoadingController,
                 public toastCtrl: ToastController,
                 private faio: FingerprintAIO,
                 private platform: Platform) {
