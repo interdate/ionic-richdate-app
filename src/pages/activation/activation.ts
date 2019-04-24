@@ -51,8 +51,10 @@ export class ActivationPage {
                this.form.res = resp.json().code;
                */
                this.form.errorMessage = resp.json().activation;
-              this.api.status = 1;
-
+               if(!resp.json().activation && data != '') {
+                   this.api.status = 1;
+                   this.navCtrl.push(HomePage);
+               }
 
               this.api.hideLoad();
               /*
