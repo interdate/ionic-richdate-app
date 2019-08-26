@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
-import { ApiQuery } from '../../library/api-query';
+import {Component} from '@angular/core';
+import { NavController, NavParams } from 'ionic-angular';
+import {DialogPage} from "../dialog/dialog";
+import {ApiProvider} from "../../providers/api/api";
 
 /**
  * Generated class for the BingoPage page.
@@ -9,7 +10,6 @@ import { ApiQuery } from '../../library/api-query';
  * Ionic pages and navigation.
  */
 
-@IonicPage()
 @Component({
   selector: 'page-bingo',
   templateUrl: 'bingo.html',
@@ -17,29 +17,29 @@ import { ApiQuery } from '../../library/api-query';
 export class BingoPage {
 
   data: { user: any, texts: any };
-  
+
     constructor(
       public navCtrl: NavController,
       public navParams: NavParams,
-      public api: ApiQuery) {
-  
+      public api: ApiProvider) {
+
       this.data = navParams.get('data');
       this.data.texts.text2 = this.data.texts.text2.replace('USERNAME',this.data.texts.items[0].nickName);
     }
-  
+
     toDialog() {
       this.data.texts.items[0].user_id = this.data.texts.items[0].userId;
-      this.navCtrl.push('DialogPage',{ user: this.data.texts.items[0] });
+      this.navCtrl.push(DialogPage,{ user: this.data.texts.items[0] });
     }
-  
+
     goBack() {
       this.navCtrl.pop();
     }
-  
+
     ionViewWillEnter() {
       this.api.pageName = 'BingoPage';
     }
-  
+
     ionViewDidLoad() {
       console.log('ionViewDidLoad BingoPage');
     }

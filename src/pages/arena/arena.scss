@@ -17,9 +17,9 @@ page-arena {
       }
     
       ion-slides {
-        height: calc(100% - 100px);
-        height: -webkit-calc(100% - 100px);
-        height: -moz-calc(100% - 100px);
+        height: calc(100% - 80px);
+        height: -webkit-calc(100% - 80px);
+        height: -moz-calc(100% - 80px);
         margin-top: 10px;
       }
     
@@ -48,6 +48,8 @@ page-arena {
     
       ion-card.card-ios {
         height: 100%;
+        margin: 0px;
+        width: 100%;
       }
     
       .swiper-slide img {

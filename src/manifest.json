@@ -1,6 +1,6 @@
 {
-  "name": "Ionic",
-  "short_name": "Ionic",
+  "name": "Richdate",
+  "short_name": "rich",
   "start_url": "index.html",
   "display": "standalone",
   "icons": [{

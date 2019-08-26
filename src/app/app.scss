@@ -198,7 +198,7 @@ ion-infinite-scroll {
 
 .list-md, .list-ios {
   margin-left: 15px;
-  margin-right: 15px;
+  margin-right: 5px;
   margin-top: 44px;
 }
 
@@ -883,6 +883,10 @@ ion-header .toolbar-ios {
 ion-footer.footer-md::before,
 ion-footer.footer-ios::before {
   background-image: none;
+}
+
+.new-version, .new-version *{
+  direction: rtl;
 }
 
 #remove-green {

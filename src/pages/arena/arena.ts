@@ -1,9 +1,10 @@
-import { Component, ViewChild, Injectable } from '@angular/core';
-import { IonicPage, NavController, NavParams, Slides, ToastController, Events } from 'ionic-angular';
-import {ApiQuery} from '../../library/api-query';
-import {Http} from '@angular/http';
+import { Component, ViewChild } from '@angular/core';
+import { NavController, NavParams, Slides, ToastController, Events } from 'ionic-angular';
 import {ChangePhotosPage} from "../change-photos/change-photos";
 import {ProfilePage} from "../profile/profile";
+import {DialogPage} from "../dialog/dialog";
+import {NotificationsPage} from "../notifications/notifications";
+import {ApiProvider} from "../../providers/api/api";
 
 /**
  * Generated class for the ArenaPage page.
@@ -12,17 +13,15 @@ import {ProfilePage} from "../profile/profile";
  * Ionic pages and navigation.
  */
 
-@IonicPage()
 @Component({
     selector: 'page-arena',
     templateUrl: 'arena.html',
 })
-@Injectable()
 export class ArenaPage {
 
     @ViewChild(Slides) slides: Slides;
 
-    users: Array<{ id: string, username: string, photo: string, age: string, area: string, image: string }>;
+    users: any;
 
     texts: { like: string, add: string, message: string, remove: string, unblock: string, no_results: string  };
     notifications: any;
@@ -31,9 +30,8 @@ export class ArenaPage {
     constructor(public navCtrl: NavController,
                 public toastCtrl: ToastController,
                 public navParams: NavParams,
-                public http: Http,
                 public events: Events,
-                public api: ApiQuery) {
+                public api: ApiProvider) {
 
         let user_id = 0;
 
@@ -49,16 +47,16 @@ export class ArenaPage {
          user_id: user_id
          });*/
 
-        this.http.get(api.url + '/users/forLikes/'+user_id+'/0', api.setHeaders(true)).subscribe(data => {
+        this.api.http.get(api.url + '/users/forLikes/'+user_id+'/0', api.setHeaders(true)).subscribe((data: any) => {
             this.api.hideLoad();
-            this.users = data.json().users.items;
-            this.texts = data.json().texts;
+            this.users = data.users.items;
+            this.texts = data.texts;
 
 
             // If there's message, than user can't be on this page
-            if (data.json().userHasNoMainImage) {
+            if (data.userHasNoMainImage) {
                 let toast = this.toastCtrl.create({
-                    message: data.json().arenaStatus,
+                    message: data.arenaStatus,
                     showCloseButton: true,
                     closeButtonText: 'אישור'
                 });
@@ -88,7 +86,7 @@ export class ArenaPage {
                 toUser: user.id,
             });
 
-            this.http.post(this.api.url + '/user/like/' + user.id, params, this.api.setHeaders(true)).subscribe(data => {
+            this.api.http.post(this.api.url + '/user/like/' + user.id, params, this.api.setHeaders(true)).subscribe(data => {
 
             });
 
@@ -121,7 +119,7 @@ export class ArenaPage {
 
     toDialog() {
         let user = this.users[this.slides.getActiveIndex()];
-        this.navCtrl.push('DialogPage', {
+        this.navCtrl.push(DialogPage, {
             user: user
         });
     }
@@ -134,7 +132,7 @@ export class ArenaPage {
     }
 
     toNotifications() {
-        this.navCtrl.push('NotificationsPage');
+        this.navCtrl.push(NotificationsPage);
     }
 
 

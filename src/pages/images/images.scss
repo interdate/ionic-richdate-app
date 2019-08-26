@@ -1,0 +1,126 @@
+page-images {
+  ion-header {
+    .toolbar-title {
+      text-align: center;
+      color: #fff;
+      padding-left: 40px;
+    }
+
+    ion-buttons {
+      float: right;
+      button{
+        //border: 1px #fff solid !important;
+        background-color: #fff !important;
+        .button-inner {
+          color: #000;
+        }
+      }
+    }
+  }
+  .send-msg{
+    width: 120px;
+  }
+  .close{
+    background-color: #fff;
+    .button-inner{
+      color: #000;
+    }
+  }
+  ion-toolbar{
+    text-align: center;
+  }
+
+  .photo {
+    width: calc(50% - 15px);
+    box-sizing: border-box;
+    border-radius: 2px;
+    float: right;
+    height: 200px;
+    margin: 5px;
+  }
+
+  .photo-img {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .wrap {
+    background-color: #fff;
+    position: relative;
+    height: calc(100% - 20px);
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border-radius: 2px;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  }
+
+  .remove{
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    right: -6px;
+    bottom: -2px;
+    color: red;
+    background: white;
+    font-size: 14px;
+    line-height: 20px;
+    border-radius: 10px;
+    z-index: 9999;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .private{
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 95px;
+    height: 31px;
+    background-size: contain;
+    background-image: url("../assets/img/privet.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 9;
+  }
+
+  .cheked{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    //background-color: rgba(255,255,255,0.4);
+    background-color: rgba(219,219,210,0.4);
+    top:0;
+    right: 0;
+    z-index: 1;
+    //ion-icon{
+    //  color: #004f9d;
+    //  font-size: 26px;
+    //  position: absolute;
+    //  right: 10px;
+    //  bottom: 10px;
+    //  //box-shadow: 0px 0px 3px #000000;
+    //}
+    div{
+      background-image: url("../assets/img/v_vip.png");
+      background-position: 5px center;
+      background-repeat: no-repeat;
+      background-size: 58%;
+      background-color: #004f9d;
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      width: 26px;
+      height: 26px;
+      z-index: 999999;
+      border-radius: 50%;
+      border: 1px #fff solid;
+      box-shadow: 0 0 2px #000;
+    }
+  }
+}

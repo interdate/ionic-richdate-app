@@ -1,8 +1,7 @@
 import {Component} from "@angular/core";
-import {IonicPage, NavController, NavParams} from "ionic-angular";
-import {Http} from "@angular/http";
-import {ApiQuery} from "../../library/api-query";
+import {NavController, NavParams} from "ionic-angular";
 import {AdvancedSearchResultPage} from "../advanced-search-result/advanced-search-result";
+import {ApiProvider} from "../../providers/api/api";
 
 /**
  * Generated class for the AdvancedsearchPage page.
@@ -11,7 +10,6 @@ import {AdvancedSearchResultPage} from "../advanced-search-result/advanced-searc
  * Ionic pages and navigation.
  */
 
-@IonicPage()
 @Component({
     selector: 'page-advancedsearch',
     templateUrl: 'advancedsearch.html',
@@ -31,16 +29,15 @@ export class AdvancedsearchPage {
 
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
-                public http: Http,
-                public api: ApiQuery) {
+                public api: ApiProvider) {
 
         this.api.storage.get('searchParams').then(data => {
 
             if (data) {
                 this.form = data;
             } else {
-                this.http.get(api.url + '/user/advanced/search', api.setHeaders(true)).subscribe(data => {
-                    this.form = data.json().form;
+                this.api.http.get(api.url + '/user/advanced/search', api.setHeaders(true)).subscribe((data: any) => {
+                    this.form = data.form;
                     this.form.heightFrom.value = '';
                     this.form.heightTo.value = '';
 
@@ -95,17 +92,9 @@ export class AdvancedsearchPage {
         this.api.pageName = 'AdvancedSearchPage';
     }
 
-    /*selectedRegion() {
-     this.http.get(this.api.url + '/search?advanced=1&advanced_search[region]=' + this.form.region.value, this.api.setHeaders(true)).subscribe(data => {
-     this.form.area = data.json().area;
-     }, err => {
-     console.log("Oops!");
-     });
-     }*/
-
     resetForm(){
         this.api.storage.remove('searchParams').then(data => {
-            this.navCtrl.push('AdvancedsearchPage');
+            this.navCtrl.push(AdvancedsearchPage);
         });
     }
 

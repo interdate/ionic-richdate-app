@@ -28,6 +28,7 @@
                     <div class="remove">
                         <ion-icon name="create"></ion-icon>
                     </div>
+                    <div *ngIf="photo.private == '1'" class="private"></div>
                 </div>
             </div>
         </div>
@@ -40,6 +41,7 @@
                     <div class="remove">
                         <ion-icon name="create"></ion-icon>
                     </div>
+                    <div *ngIf="photo.private == '1'" class="private"></div>
                 </div>
             </div>
         </div>

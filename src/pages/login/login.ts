@@ -1,17 +1,17 @@
 import {Component} from "@angular/core";
-import {IonicPage, NavController, NavParams, ToastController, Platform} from "ionic-angular";
-import {HomePage} from "../home/home";
-import {ApiQuery} from "../../library/api-query";
-import {Storage} from "@ionic/storage";
+import {NavController, NavParams, ToastController, Platform} from "ionic-angular";
 import {FingerprintAIO} from "@ionic-native/fingerprint-aio";
-import "rxjs/add/operator/catch";
-import "rxjs/add/operator/map";
+//import "rxjs/add/operator/catch";
+//import "rxjs/add/operator/map";
 import {RegisterPage} from "../register/register";
 import * as $ from "jquery";
 import {SubscriptionPage} from "../subscription/subscription";
 import {ChangePhotosPage} from "../change-photos/change-photos";
 import {ActivationPage} from "../activation/activation";
 import {HttpHeaders} from "@angular/common/http";
+import {PasswordRecoveryPage} from "../password-recovery/password-recovery";
+import {ApiProvider} from "../../providers/api/api";
+import {HomePage} from "../home/home";
 
 /**
  * Generated class for the LoginPage page.
@@ -20,7 +20,6 @@ import {HttpHeaders} from "@angular/common/http";
  * Ionic pages and navigation.
  */
 
-@IonicPage()
 @Component({
     selector: 'page-login',
     templateUrl: 'login.html',
@@ -37,16 +36,15 @@ export class LoginPage {
 
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
-                public api: ApiQuery,
-                public storage: Storage,
+                public api: ApiProvider,
                 public toastCtrl: ToastController,
                 private faio: FingerprintAIO,
                 private platform: Platform) {
 
-        this.api.http.get(api.url + '/user/form/login', api.setHeaders1(false)).subscribe((data:any) => {
+        this.api.http.get(this.api.url + '/user/form/login', this.api.setHeaders(false)).subscribe((data:any) => {
             this.form = data;
 
-            this.storage.get('fingerAuth').then((val) => {
+            this.api.storage.get('fingerAuth').then((val) => {
                 this.faio.isAvailable().then(result => {
                     if (val.status) {
                         this.fingerAuth = true;
@@ -54,26 +52,26 @@ export class LoginPage {
                 });
             });
 
-            this.storage.get('username').then((username) => {
+            this.api.storage.get('username').then((username) => {
                 this.form.login.username.value = username;
                 this.user.name = username;
             });
         });
 
-        this.storage = storage;
 
         if (navParams.get('page') && navParams.get('page')._id == "logout") {
 
+            //this.api.setHeaders(false, null, null);
             this.api.setHeaders(false, null, null);
-            this.api.setHeaders1(false, null, null);
             // Removing data storage
             this.api.username = null;
             this.api.password = null;
             this.api.status = '';
-            this.storage.remove('status');
-            this.storage.remove('password');
-            this.storage.remove('user_id');
-            this.storage.remove('user_photo');
+            //delete this.api.isPay;
+            this.api.storage.remove('status');
+            this.api.storage.remove('password');
+            this.api.storage.remove('user_id');
+            this.api.storage.remove('user_photo');
         }
 
         if(navParams.get('error')){
@@ -136,7 +134,7 @@ export class LoginPage {
         })
             .then((result: any) => {
                 if (result) {
-                    this.storage.get('fingerAuth').then((val) => {
+                    this.api.storage.get('fingerAuth').then((val) => {
                         if (val.status) {
                             this.form.login.username.value = val.username;
                             this.form.login.password.value = val.password;
@@ -149,16 +147,20 @@ export class LoginPage {
     }
 
     validate(response) {
-
+        let that = this;
+        setTimeout(function () {
+            that.api.isPay = parseInt(response.isPay);
+        },3000);
         if (response.status != "not_activated") {
-            this.storage.set('username', this.form.login.username.value);
-            this.storage.set('password', this.form.login.password.value);
-            this.storage.set('status', response.status);
-            this.storage.set('user_id', response.id);
-            this.storage.set('user_photo', response.photo);
+            this.api.storage.set('username', this.form.login.username.value);
+            this.api.storage.set('password', this.form.login.password.value);
+            this.api.storage.set('status', response.status);
+            this.api.storage.set('user_id', response.id);
+            this.api.storage.set('user_photo', response.photo);
 
+
+            //this.api.setHeaders(true, this.form.login.username.value, this.form.login.password.value);
             this.api.setHeaders(true, this.form.login.username.value, this.form.login.password.value);
-            this.api.setHeaders1(true, this.form.login.username.value, this.form.login.password.value);
         }
         if (response.status) {
             let data = {
@@ -167,9 +169,9 @@ export class LoginPage {
                 password: this.form.login.password.value
             };
 
-            this.storage.set('fingerAuth', data);
+            this.api.storage.set('fingerAuth', data);
 
-            this.storage.set('user_photo', response.photo);
+            this.api.storage.set('user_photo', response.photo);
          if (response.status == "notActivated") {
                 /* let toast = this.toastCtrl.create({
                  message: response.texts.notActiveMessage,
@@ -210,7 +212,7 @@ export class LoginPage {
                 password: this.form.login.password.value
             });
         }
-        this.storage.get('deviceToken').then((deviceToken) => {
+        this.api.storage.get('deviceToken').then((deviceToken) => {
             this.api.sendPhoneId(deviceToken);
         });
     }
@@ -220,7 +222,7 @@ export class LoginPage {
     }
 
     onPasswordRecoveryPage() {
-        this.navCtrl.push('PasswordRecoveryPage');
+        this.navCtrl.push(PasswordRecoveryPage);
     }
 
     ionViewDidLoad() {

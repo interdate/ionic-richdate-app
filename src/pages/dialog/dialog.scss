@@ -211,4 +211,46 @@ page-dialog {
     margin: 8px 13px;
   }
 
+  .dialog-avatar.private{
+    position: relative;
+  }
+
+  .dialog-avatar.private::after{
+    content: '';
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 46px;
+    height: 100%;
+    background-size: contain;
+    background-image: url("../assets/img/privet.png");
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .addPhoto{
+    position: absolute;
+    width: 36px;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    background-image: url("../assets/img/add-photo.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    z-index: 9;
+  }
+
+  .addPhoto + #dialog-msg{
+    margin-left: 36px;
+    width: calc(100% - 110px);
+  }
+
+  .messages .text img{
+    width:45px;
+    margin:5px 2px 0;
+    float:right;
+    height: auto;
+  }
+
 }

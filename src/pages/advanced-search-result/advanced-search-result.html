@@ -31,12 +31,12 @@
   <ion-list>
     <ion-card class="usr_profile" ion-item *ngFor="let user of users">
       <div *ngIf="user.isPaing == '1'" class="king"></div><!-- *ngIf="user.isPays == true" -->
-      <div class="user-section">
+      <div class="user-section" [ngClass]="{'vip': (user.vip == '1' && user.isPaying == '1')}">
         <div *ngIf="user.isOnline == '1'" class="online"></div>
         <div *ngIf="user.isNew == '1'" class="new-user"></div>
         <div *ngIf="user.isPaying == '1'" class="paying"></div>
-        <div (click)="itemTapped(user)" [ngStyle]="{ 'background-image': 'url(' + user.photo + ')'}"
-             class="avatar"></div>
+        <div (click)="itemTapped(user)" [ngStyle]="{ 'background-image': 'url(' + user.mainImage.url + ')'}"
+             class="avatar" [ngClass]="{'private': user.mainImage.private == '1'}"></div>
 
         <!-- <div *ngIf="user.photo != '/images/no_photo_2.jpg' && user.photo != '/images/no_photo_1.jpg'" (click)="itemTapped(user)" [ngStyle]="{ 'background-image': 'url(' + user.photo + ')'}"
              class="avatar"></div> -->

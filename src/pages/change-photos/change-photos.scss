@@ -70,4 +70,23 @@ page-change-photos {
         background: red;
       }
 
+  .private{
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 65px;
+    height: 26px;
+    background-size: contain;
+    background-image: url("../assets/img/privet.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 9;
+  }
+
+  .main .private{
+    width: 95px;
+    height: 31px;
+  }
+
 }

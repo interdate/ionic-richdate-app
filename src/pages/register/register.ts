@@ -1,13 +1,11 @@
 import {Component, ViewChild} from "@angular/core";
 import {ActionSheetController, Content, NavController, NavParams, Platform} from "ionic-angular";
-import {ApiQuery} from "../../library/api-query";
 import * as $ from "jquery";
-import {Http} from "@angular/http";
-import {HomePage} from "../home/home";
 import {Page} from "../page/page";
 import {SelectPage} from "../select/select";
 import {ChangePhotosPage} from "../change-photos/change-photos";
-declare var setSelect2;
+import {ApiProvider} from "../../providers/api/api";
+import {HomePage} from "../home/home";
 
 @Component({
     selector: 'page-register',
@@ -23,8 +21,7 @@ export class RegisterPage {
 
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
-                public api: ApiQuery,
-                public http: Http,
+                public api: ApiProvider,
                 public platform: Platform,
                 public actionSheetCtrl: ActionSheetController) {
         api.storage.get('status').then((val) => {
@@ -41,7 +38,7 @@ export class RegisterPage {
 
     sendForm() {
         this.api.showLoad();
-        var header = this.api.setHeaders(this.login ? true : false);
+        let header = this.api.setHeaders(this.login ? true : false);
         //if (typeof this.user != 'undefined') {
         this.form.fields.forEach(field => {
 
@@ -56,15 +53,15 @@ export class RegisterPage {
         //}
 
 
-        this.http.post(this.api.url + '/user/register', this.user, header).subscribe(
-            data => {
+        this.api.http.post(this.api.url + '/user/register', this.user, header).subscribe(
+          (data: any) => {
 
                 //this.form = {};
                 $('#labelconfirmMails').remove();
-                this.form = data.json().form;
-                this.user = data.json().user;
+                this.form = data.form;
+                this.user = data.user;
 
-                this.errors = data.json().errors;
+                this.errors = data.errors;
 
                 if (this.user.step == 4) {
                     this.api.setHeaders(true, this.user.userNick, this.user.userPass);
@@ -105,16 +102,6 @@ export class RegisterPage {
                     } else if (this.user.step == 2 && this.user.register) {
                         this.api.storage.set('new_user', true);
                     }
-                    this.form.fields.forEach(field => {
-                        if (field.type == 'select' /*&& (field.name == 'userCity' || field.name == 'countryOfOriginId')*/) {
-                            //this.select2(field, null);
-                        }
-                        if (field.type == 'selects') {
-                            field.sel.forEach(select => {
-                                //this.select2(select, select.choices[0].label);
-                            });
-                        }
-                    });
 
                     this.content.scrollToTop(300);
                 }
@@ -168,14 +155,6 @@ export class RegisterPage {
                 $(".tip.userPhone").hide();
             }
         });
-    }
-
-    select2(field, placeholder) {
-        setSelect2('#' + field.name,
-            {
-                placeholder: (typeof placeholder == 'undefined') ? "בחר מהרשימה" : placeholder
-            }
-        );
     }
 
     stepBack() {

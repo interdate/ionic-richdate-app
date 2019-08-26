@@ -1,6 +1,16 @@
 page-select {
+  .toolbar-title{
+    text-align: center;
+    color: #fff;
+  }
+  ion-buttons{
+    float: right;
+    button .button-inner{
+      color: #fff;
+    }
+  }
   ion-header{
-    background-color: #eee;
+    background-color: #000;
   }
   ion-content.content{
     background-color: #fff;

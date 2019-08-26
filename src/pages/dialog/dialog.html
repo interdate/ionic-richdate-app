@@ -7,19 +7,16 @@
 <ion-header>
 
     <ion-navbar>
-        <ion-title>dialog</ion-title>
+        <ion-title>שיחה</ion-title>
     </ion-navbar>
 </ion-header>
 
-<ion-content id="dialog" overflow-scroll="true" scroll="true">
-    <!--<div class="admin-messages">
-        <span *ngIf="adminMessagesCount > 0" class="counter">{{adminMessagesCount}}</span>
-        <button *ngIf="user.userId == '468385291'" (click)="adminMessagesPage()" ion-button>הודעת מערכת</button>
-    </div>-->
+<ion-content id="dialog" overflow-scroll="true" scroll="true" *ngIf="user">
+
     <ion-card>
         <ion-item>
-            <p class="dialog-avatar" tappable *ngIf="user?.mainImage != ''" (click)="toProfilePage()"
-               [ngStyle]="{ 'background-image': 'url(' + user?.mainImage?.url + ')'}"> {{'שיחה עם ' +
+            <p class="dialog-avatar" tappable *ngIf="user?.mainImage != ''" (click)="toProfilePage()" tappable
+               [ngStyle]="{ 'background-image': 'url(' + user?.mainImage?.url + ')'}" [ngClass]="{'private': user.mainImage?.private == '1'}"> {{'שיחה עם ' +
                 user?.nickName}}</p>
             <p class="dialog-avatar" *ngIf="user?.mainImage == ''" tappable (click)="toProfilePage()"
                [ngStyle]="{ 'background-image': 'url(' + api.url + '/images/no_photo_' + user.gender + '.jpg' + ')'}">
@@ -35,14 +32,21 @@
                     <ion-col
                             *ngIf="!msg.audio && msg?.text != 'לא ניתן לצפות בהודעה. לרכישת מנוי לחצי כאן' && msg?.text != 'לא ניתן לצפות בהודעה. לרכישת מנוי לחצי כאן או השתמשי בנקודה לקריאת הודעות'"
                             class="text" width-75>
-                        <ion-card-content [innerHTML]="msg?.text" item-left>
+<!--                        [innerHTML]="msg?.text"-->
+                        <ion-card-content *ngIf="checkedImg(msg?.text) === false" item-left [innerHTML]="msg?.text">
+                        </ion-card-content>
+                        <ion-card-content *ngIf="checkedImg(msg?.text) !== false">
+                            <a *ngFor="let img of msgToArr(msg?.text).photos" class="photo">
+                                <img src="{{ img.src }}" (click)="preview(img)">
+                            </a>
+                            <div [innerHTML]="msgToArr(msg?.text)?.text"></div>
                         </ion-card-content>
                     </ion-col>
                     <ion-col *ngIf="msg?.text == 'לא ניתן לצפות בהודעה. לרכישת מנוי לחצי כאן'"
                              class="text" width-75>
                         <ion-card-content item-left>
                             {{'לא ניתן לצפות בהודעה. לרכישת מנוי'}}
-                            <span color="blue" (click)="subscription()"> לחצי כאן</span>
+                            <span color="blue" (click)="subscription()" tappable> לחצי כאן</span>
                         </ion-card-content>
                     </ion-col>
                     <ion-col
@@ -50,8 +54,8 @@
                             class="text" width-75>
                         <ion-card-content item-left>
                             {{'לא ניתן לצפות בהודעה. לרכישת מנוי'}}
-                            <span color="blue" (click)="subscription()">לחצי כאן </span>
-                            או <span color="blue" (click)="useFreePointToReadMessage(msg)">השתמשי בנקודה </span> לקריאת
+                            <span color="blue" (click)="subscription()" tappable>לחצי כאן </span>
+                            או <span color="blue" (click)="useFreePointToReadMessage(msg)" tappable>השתמשי בנקודה </span> לקריאת
                             הודעות
                         </ion-card-content>
                     </ion-col>
@@ -62,7 +66,7 @@
                             <div class="duration-bar"><span class="mejs-time-total"><span class="runner"></span></span>
                             </div>
                             <button *ngIf="(isPlay == false) || (currentMsgPlay != msg.id && isPlay == true )"
-                                    style="width:19%;" class="play-button" (click)="playrecord(msg)" ion-button
+                                    style="width:19%;" class="play-button" (click)="playrecord(msg)" ion-button tappable
                                     color="danger">
                                 <ion-icon name="play"></ion-icon>
                             </button>
@@ -86,7 +90,7 @@
                                 <div class="duration-bar"><span class="mejs-time-total"><span
                                         class="runner"></span></span></div>
                                 <button *ngIf="(isPlay == false) || (currentMsgPlay != msg.id && isPlay == true )"
-                                        style="width:19%;" class="play-button" (click)="playrecord(msg)" ion-button
+                                        style="width:19%;" class="play-button" (click)="playrecord(msg)" ion-button tappable
                                         color="danger">
                                     <ion-icon name="play"></ion-icon>
                                 </button>
@@ -102,7 +106,7 @@
                             <!--<ion-icon *ngIf="user?.id == msg.from" name="checkmark"></ion-icon>-->
                             <ion-icon
                                     *ngIf="msg?.text != 'לצפיה בהודעה לחצי' && msg?.text != 'לצפיה בהודעה לחצי לרכישת מנוי או לשימוש בנקודה'"
-                                    (click)="deleteMsg(msg)" class="delete" name="ios-trash-outline">
+                                    (click)="deleteMsg(msg)" tappable class="delete" name="ios-trash-outline">
                             </ion-icon>
                             <div *ngIf="user.userId != msg?.from">
                                 <ion-icon *ngIf="user?.id != msg.from && msg.isRead == 0" name="done-all"
@@ -115,27 +119,25 @@
                 </ion-row>
             </ion-grid>
         </ion-card>
-        <!--<div class="textarea-box">-->
-        <!--<ion-textarea id="dialog-msg1" [(ngModel)]="message" placeholder="" item-left></ion-textarea>-->
-        <!--</div>-->
     </div>
 </ion-content>
 <ion-footer>
-    <ion-toolbar id="form-dialog">
+    <ion-toolbar id="form-dialog" *ngIf="user">
+        <div class="addPhoto" *ngIf="data?.chat?.vip == '1'" tappable (click)="openMyPhotos()"></div>
         <ion-textarea id="dialog-msg" (keyup)="countCharacters($event)" #dialog_msg (ionFocus)="onFocus()"
                       [(ngModel)]="message" placeholder="" item-left></ion-textarea>
-        <button *ngIf="!submitBtn && micStatus" (click)="sendVoiceMessage()" class="record-b" ion-button icon-only round
+        <button *ngIf="!submitBtn && micStatus" (click)="sendVoiceMessage()" tappable class="record-b" ion-button icon-only round
                 outline
                 color="danger">
             <ion-icon name="ios-mic"></ion-icon>
         </button>
 
-        <button *ngIf="!submitBtn && !micStatus" class="record-b" (click)="sendVoiceMessage()" ion-button icon-only
+        <button *ngIf="!submitBtn && !micStatus" class="record-b" (click)="sendVoiceMessage()" tappable ion-button icon-only
                 round outline>
             <ion-icon name="radio-button-on"></ion-icon>
         </button>
 
-        <button *ngIf="submitBtn" class="send-msg" (click)="sendMessage()" ion-button color="danger">שלח</button>
+        <button *ngIf="submitBtn" class="send-msg" (click)="sendMessage()" tappable ion-button color="danger">שלח</button>
         <!--[disabled]="check"-->
     </ion-toolbar>
 </ion-footer>

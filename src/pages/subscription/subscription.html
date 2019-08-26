@@ -7,36 +7,68 @@
 <ion-header>
 
     <ion-navbar>
-        <ion-title>subscription</ion-title>
+        <ion-title>Subscription</ion-title>
     </ion-navbar>
 
 </ion-header>
 
 
 <ion-content>
-    <div class="android" *ngIf="platform === 'android'" id="innerPageHolder">
+    <div class="vip" *ngIf="chooseProduct">
+<!--        <h2>{{ dataPage?.android.vip.title }}</h2>-->
+        <div class="sub">
+            <div class="title">{{ chooseProduct.titleVip }}</div>
+            <div class="price">
+                <span>הוסף</span>
+                {{ dataPage?.android.vip.price }}
+                <span>לחודש</span>
+                <span class="pr">₪</span>
+            </div>
+            <div class="options">
+                <div *ngFor="let option of dataPage?.android.vip.options">
+                    {{ option }}
+                </div>
+            </div>
+        </div>
+        <div class="button-ok" (click)="goto(chooseProduct, true);" tappable>{{ dataPage?.android.vip.button_ok }}</div>
+        <div class="button-cancel" (click)="goto(chooseProduct, false);" tappable>{{ dataPage?.android.vip.button_cancel }}</div>
+        <div class="button-back" (click)="backChoose()">{{ dataPage?.android.vip.button_back }}</div>
+        <div [innerHtml]="dataPage?.android.vip.textBefore" style="font-size: 13px;color: #000;text-align:center;">
+        </div>
+    </div>
+    <div class="android" *ngIf="platform === 'android' && !chooseProduct" id="innerPageHolder">
         <div id="massBoxIn" class="prices">
             <h2>רכישת מנוי בריצ'דייט</h2>
-            <div [innerHtml]="dataPage?.android.textBefore" style="font-size: 13px;color: #c8c8c9;text-align:center;">
+            <div [innerHtml]="dataPage?.android.textBefore" style="font-size: 13px;color: #fff;text-align:center;">
             </div>
 
-            <div *ngIf="dataPage?.android?.form" class="form">{{ dataPage.android.form.text }} <input [(ngModel)]="coupon" type="text" /> <input type="submit" value="{{ dataPage.android.form.button }}" (click)="getPage()"></div>
-
-            <div *ngFor="let product of products" class="subs"
-                 (click)="goto(product)">
-                <a href="#" title="title" class="ui-link">
-                    <span style="width: 175px;" class="subsTitle">{{product.title}}</span>
-                    {{product.text}}
-                    <br>
-                    <div class="subsPrice">
-                        ₪<span>{{product.price}}</span>
+            <div *ngIf="dataPage?.android?.form" class="form">{{ dataPage.android.form.text }} <br><input [(ngModel)]="coupon" type="text" /> <input type="submit" value="{{ dataPage.android.form.button }}" (click)="getPage()"></div>
+            <div class="pay">
+            <div *ngFor="let product of products" class="subs" tappable
+                 (click)="chooseVip(product)">
+                <div class="left">
+                    <div>
+                        {{product.price}}
                         <span class="month">לחודש</span>
-                    </div><!--subsPrice-->
-                    <div class="subsBut"></div>
-                </a>
+                        <span class="pr" [ngClass]="{'sale': call > 1}">₪</span>
+                    </div>
+                </div>
+                <div class="ui-link">
+
+                    <span class="subsTitle">{{product.title}}</span>
+                    <p>{{product.text}}</p>
+<!--                    <br>-->
+<!--                    <div class="subsPrice">-->
+<!--                        ₪<span>{{product.price}}</span>-->
+<!--                        <span class="month">לחודש</span>-->
+<!--                    </div>&lt;!&ndash;subsPrice&ndash;&gt;-->
+<!--                    <div class="subsBut"></div>-->
+                </div>
+                <div class="clear"></div>
             </div><!--subs-->
+            </div>
             <div class="clear"><!--clear--></div>
-            <div [innerHtml]="dataPage?.android.textAfter" style="font-size: 13px;color: #c8c8c9;text-align:center;">
+            <div [innerHtml]="dataPage?.android.textAfter" style="font-size: 13px;color: #5d5f66;text-align:center;">
             </div>
         </div><!--result-->
     </div>

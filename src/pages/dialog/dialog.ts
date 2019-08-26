@@ -1,36 +1,30 @@
 import {Component, ViewChild} from "@angular/core";
-import {IonicPage, NavController, NavParams, ToastController, Content, AlertController, TextInput} from "ionic-angular";
-import {ApiQuery} from "../../library/api-query";
-import {Http} from "@angular/http";
+import {NavController, NavParams, ToastController, Content, AlertController, TextInput} from "ionic-angular";
 import {Media} from "@ionic-native/media";
 import {File} from "@ionic-native/file";
 import {FileTransfer} from "@ionic-native/file-transfer";
 import {Device} from "@ionic-native/device";
-import {Storage} from "@ionic/storage";
 import {SubscriptionPage} from "../subscription/subscription";
 import {AdminMessagesPage} from "../admin-messages/admin-messages";
 import {ProfilePage} from "../profile/profile";
-/**
- * Generated class for the DialogPage page.
- *
- * See https://ionicframework.com/docs/components/#navigation for more info on
- * Ionic pages and navigation.
- */
+import {ImagesPage} from "../images/images";
+import { DomSanitizer } from '@angular/platform-browser';
+import * as $ from "jquery";
+import {ApiProvider} from "../../providers/api/api";
+import {HomePage} from "../home/home";
+import {FullScreenProfilePage} from "../full-screen-profile/full-screen-profile";
+//import set = Reflect.set;
 
-declare var $: any;
-
-@IonicPage()
 @Component({
     selector: 'page-dialog',
-    templateUrl: 'dialog.html',
-    providers: [FileTransfer]
+    templateUrl: 'dialog.html'
 })
 export class DialogPage {
     @ViewChild(Content) content: Content;
     @ViewChild('dialog_msg') messageInput: TextInput;
 
-    user: { id: string, userId: string, isOnline: string, nick_name: string, mainImage: {url: any} ,gender: string, photo};
-    users: Array<{ id: string, isOnline: string, nick_name: string, image: string }>;
+    user: any;
+    users: any;
     texts: any = {a_conversation_with: '', title: '', photo: ''};
     message: any;
     messages: any; //Array<{ id: string, alert: '', isRead: any, text: string, dateTime: string, from: any, voiceUrl: string }>; //, duration:number
@@ -60,37 +54,81 @@ export class DialogPage {
 
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
-                public http: Http,
                 public toastCtrl: ToastController,
-                public api: ApiQuery,
+                public api: ApiProvider,
                 public media: Media,
                 public file: File,
                 public alertCtrl: AlertController,
                 public device: Device,
-                public  fileTransfer: FileTransfer,
-                public storage: Storage) {
+                public fileTransfer: FileTransfer,
+                private sanitizer: DomSanitizer) {
+        if(navParams.get('user')) {
+            this.user = navParams.get('user');
 
-        this.user = navParams.get('user');
+            this.getPage();
 
-        this.getPage();
-
-        this.storage.get('user_id').then((val) => {
-            this.storage.get('username').then((username) => {
-                this.username = username;
+            this.api.storage.get('user_id').then((val) => {
+                this.api.storage.get('username').then((username) => {
+                    this.username = username;
+                });
+                this.api.storage.get('password').then((password) => {
+                    this.password = password;
+                });
             });
-            this.storage.get('password').then((password) => {
-                this.password = password;
+
+            $("#target").focus(function () {
+                alert("Handler for .focus() called.");
             });
-        });
 
-        $("#target").focus(function () {
-            alert("Handler for .focus() called.");
-        });
+            this.api.keyboard.onKeyboardShow().subscribe(data => {
+                // $('.scroll-content, .fixed-content').css({'margin-bottom': '65px'});
+                this.messageInput.setFocus();
+                this.scrollToBottom();
+            });
+        }else{
+            this.navCtrl.push(HomePage);
+        }
+    }
 
-        this.api.keyboard.onKeyboardShow().subscribe(data => {
-            // $('.scroll-content, .fixed-content').css({'margin-bottom': '65px'});
-            this.messageInput.setFocus();
-            this.scrollToBottom();
+    preview(img){
+      this.api.preview(this.navCtrl,img.src,FullScreenProfilePage);
+    }
+
+    checkedImg(html) {
+        return ($('<div>' + html + '</div>').find('a img').length > 0) ? true : false;
+    }
+
+    msgToArr(html){
+        let res: any = {photos: [], text: ''};
+        let div: any = document.createElement('div');
+        div.innerHTML = html;
+        $(div).find('a img').each(function () {
+            res.photos.push({src:$(this).attr('src')});
+            $(this).parent('a').remove();
+        });
+        //$(div).find('a').remove();
+        res.text = this.sanitizer.bypassSecurityTrustHtml(div.innerHTML);
+        return res;
+    }
+
+    openMyPhotos(){
+        console.log("start");
+        let imageModal = this.api.modalCtrl.create(ImagesPage, {data: this.data});
+        imageModal.present();
+
+        imageModal.onDidDismiss(data => {
+            console.log("end");
+            if (data && data.message != '') {
+                //let temp = this.message;
+                this.message = data.message;
+                this.sendMessage();
+                // let that = this;
+                // setTimeout(
+                //     function () {
+                //         that.message = temp;
+                //     },100
+                // );
+            }
         });
     }
 
@@ -108,7 +146,7 @@ export class DialogPage {
     }
 
     subscription() {
-        this.storage.get('user_id').then((user_id) => {
+        this.api.storage.get('user_id').then((user_id) => {
             this.navCtrl.push(SubscriptionPage);
         });
     }
@@ -121,14 +159,14 @@ export class DialogPage {
         var userId = typeof this.user.userId != "undefined" ? this.user.userId : this.user.id;
         this.reciver_id = userId;
 
-        this.http.get(this.api.url + '/user/chat/' + userId, this.api.setHeaders(true)).subscribe(data => {
-            this.user = data.json().user;
+        this.api.http.get(this.api.url + '/user/chat/' + userId, this.api.setHeaders(true)).subscribe((data: any) => {
+            this.user = data.user;
             /*this.texts = data.json().texts;*/
-            this.messages = data.json().chat.items;
-            this.data = data.json();
-            this.countNewMess = data.json().chat.newMess;
-            this.alert = data.json().blacklist != '' ? data.json().blacklist : '';
-            this.contactCurrentReadMessagesNumber = data.json().contactCurrentReadMessagesNumber;
+            this.messages = data.chat.items;
+            this.data = data;
+            this.countNewMess = data.chat.newMess;
+            this.alert = data.blacklist != '' ? data.blacklist : '';
+            this.contactCurrentReadMessagesNumber = data.contactCurrentReadMessagesNumber;
 
             this.scrollToBottom();
         }, err => {
@@ -137,7 +175,7 @@ export class DialogPage {
     }
 
     deleteMsg(message) {
-        this.http.post(this.api.url + '/user/message/delete/' + message.id, {}, this.api.setHeaders(true)).subscribe(data => {
+        this.api.http.post(this.api.url + '/user/message/delete/' + message.id, {}, this.api.setHeaders(true)).subscribe((data: any) => {
             this.getPage();
         });
     }
@@ -152,10 +190,10 @@ export class DialogPage {
 
     useFreePointToReadMessage(message) {
         let index = this.api.functiontofindIndexByKeyValue(this.messages, 'id', message.id);
-        this.http.get(this.api.url + '/user/chat/useFreePointToReadMessage/' + message.id, this.api.setHeaders(true)).subscribe(data => {
-            this.messages[index].text = data.json().messageText;
+        this.api.http.get(this.api.url + '/user/chat/useFreePointToReadMessage/' + message.id, this.api.setHeaders(true)).subscribe((data: any) => {
+            this.messages[index].text = data.messageText;
             this.setMessagesAsRead([message.id]);
-            if (!data.json().userHasFreePoints) {
+            if (!data.userHasFreePoints) {
                 // Update page
                 this.getPage();
             }
@@ -167,7 +205,7 @@ export class DialogPage {
             unreadMessages: unreadMessages
         });
 
-        this.http.post(this.api.url + '/user/messenger/setMessagesAsRead', params, this.api.setHeaders(true)).subscribe(data => {
+        this.api.http.post(this.api.url + '/user/messenger/setMessagesAsRead', params, this.api.setHeaders(true)).subscribe((data: any) => {
         });
     }
 
@@ -187,8 +225,8 @@ export class DialogPage {
      }
      */
     sendPush() {
-        var userId = typeof this.user.userId != "undefined" ? this.user.userId : this.user.id;
-        this.http.post(this.api.url + '/user/push/' + userId, {}, this.api.setHeaders(true)).subscribe(data => {
+        let userId = typeof this.user.userId != "undefined" ? this.user.userId : this.user.id;
+        this.api.http.post(this.api.url + '/user/push/' + userId, {}, this.api.setHeaders(true)).subscribe((data: any) => {
         });
     }
 
@@ -234,11 +272,11 @@ export class DialogPage {
                 this.scrollToBottom();
                 this.message = '';
 
-                var userId = typeof this.user.userId != "undefined" ? this.user.userId : this.user.id;
+                let userId = typeof this.user.userId != "undefined" ? this.user.userId : this.user.id;
 
-                this.http.post(this.api.url + '/user/chat/' + userId, params, this.api.setHeaders(true)).subscribe(data => {
+                this.api.http.post(this.api.url + '/user/chat/' + userId, params, this.api.setHeaders(true)).subscribe((data: any) => {
 
-                    if (data.json().status == 'chat') {
+                    if (data.status == 'chat') {
                         this.messages.push({
                             id: 0,
                             date: '',
@@ -248,16 +286,16 @@ export class DialogPage {
                             time: '',
                             to: this.user.id
                         });
-                        this.messages = data.json().chat.items;
-                        this.countNewMess = data.json().chat.newMess;
-                    } else if (data.json().status == 'blocked') {
+                        this.messages = data.chat.items;
+                        this.countNewMess = data.chat.newMess;
+                    } else if (data.status == 'blocked') {
                         let toast = this.toastCtrl.create({
-                            message: data.json().message,
+                            message: data.message,
                             duration: 5000
                         });
                         toast.present();
                     }
-                    this.messages = data.json().chat.items;
+                    this.messages = data.chat.items;
                     this.scrollToBottom();
                     this.sendPush();
                 });
@@ -443,18 +481,18 @@ export class DialogPage {
 
     getNewMessages() {
 
-        this.http.get(this.api.url + '/user/chat/' + this.reciver_id + '/' + this.contactCurrentReadMessagesNumber + '/refresh', this.api.setHeaders(true)).subscribe(data => {
-            this.contactCurrentReadMessagesNumber = data.json().contactCurrentReadMessagesNumber;
-            if (data.json().chat) {
-                this.messages = data.json().chat.items;
-                this.countNewMess = data.json().chat.newMess;
+        this.api.http.get(this.api.url + '/user/chat/' + this.reciver_id + '/' + this.contactCurrentReadMessagesNumber + '/refresh', this.api.setHeaders(true)).subscribe((data: any) => {
+            this.contactCurrentReadMessagesNumber = data.contactCurrentReadMessagesNumber;
+            if (data.chat) {
+                this.messages = data.chat.items;
+                this.countNewMess = data.chat.newMess;
 
                 this.scrollToBottom();
                 this.api.hideLoad();
 
 
 
-                if (data.json().chat.abilityReadingMessages == 1 ) {
+                if (data.chat.abilityReadingMessages == 1 ) {
 
                     this.countNewMess = 0;
                     var arrMsg = [];
@@ -469,12 +507,12 @@ export class DialogPage {
                     }
 
                 }
-                this.userHasFreePoints = data.json().chat.userHasFreePoints;
+                this.userHasFreePoints = data.chat.userHasFreePoints;
 
                 let that = this;
 
 
-                if (data.json().isNewMess) {
+                if (data.isNewMess) {
                     this.scrollToBottom();
                 }
 
@@ -489,7 +527,7 @@ export class DialogPage {
             message: 'ok-1990234'
         });
 
-        this.http.post(this.api.url + '/api/v1/sends/' + this.user.id + '/messages', params, this.api.setHeaders(true)).subscribe(data => {
+        this.api.http.post(this.api.url + '/api/v1/sends/' + this.user.id + '/messages', params, this.api.setHeaders(true)).subscribe((data: any) => {
         });
     }
 
@@ -500,7 +538,7 @@ export class DialogPage {
                 messages: this.notReadMessage
             });
 
-            this.http.post(this.api.url + '/api/v1/checks/messages', params, this.api.setHeaders(true)).subscribe(data => {
+            this.api.http.post(this.api.url + '/api/v1/checks/messages', params, this.api.setHeaders(true)).subscribe((data: any) => {
 
                 for (let i = 0; i < this.messages.length; i++) {
                     //if (data.json().readMessages.indexOf(this.messages[i].id) !== '-1') {

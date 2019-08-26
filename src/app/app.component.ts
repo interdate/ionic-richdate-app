@@ -13,9 +13,6 @@ import {Market} from "@ionic-native/market";
 import {Push, PushObject, PushOptions} from "@ionic-native/push";
 import {StatusBar} from "@ionic-native/status-bar";
 import {SplashScreen} from "@ionic-native/splash-screen";
-import {ApiQuery} from "../library/api-query";
-import {Storage} from "@ionic/storage";
-import {HomePage} from "../pages/home/home";
 import {LoginPage} from "../pages/login/login";
 import {RegisterPage} from "../pages/register/register";
 import {ChangePhotosPage} from "../pages/change-photos/change-photos";
@@ -23,16 +20,24 @@ import {SettingsPage} from "../pages/settings/settings";
 import {InboxPage} from "../pages/inbox/inbox";
 import {SubscriptionPage} from "../pages/subscription/subscription";
 import {ProfilePage} from "../pages/profile/profile";
-import {AppVersion} from "@ionic-native/app-version";
 import {ActivationPage} from "../pages/activation/activation";
 
 
-declare var $: any;
+import * as $ from "jquery";
+import {DialogPage} from "../pages/dialog/dialog";
+import {PasswordRecoveryPage} from "../pages/password-recovery/password-recovery";
+import {ContactUsPage} from "../pages/contact-us/contact-us";
+import {ArenaPage} from "../pages/arena/arena";
+import {NotificationsPage} from "../pages/notifications/notifications";
+import {SearchPage} from "../pages/search/search";
+import {ChangePasswordPage} from "../pages/change-password/change-password";
+import {FreezeAccountPage} from "../pages/freeze-account/freeze-account";
+import {BingoPage} from "../pages/bingo/bingo";
+import {ApiProvider} from "../providers/api/api";
+import {HomePage} from "../pages/home/home";
 
 @Component({
-    templateUrl: 'app.html',
-    providers: [Market, Push]
-
+    templateUrl: 'app.html'
 })
 export class MyApp {
     //rootPage:any = LoginPage;
@@ -42,19 +47,18 @@ export class MyApp {
     @ViewChild(Content) content: Content;
 
     // make HelloIonicPage the root (or first) page
-    rootPage: any;
+    rootPage: any;// = HomePage;
     //rootPage = LoginPage;
     banner: {src: string; link: string};
-    menu_items_logout: Array<{_id: string, icon: string, title: string, count: any, component: any}>;
-    menu_items_login: Array<{_id: string, icon: string, title: string, count: any, component: any}>;
-    menu_items: Array<{_id: string, icon: string, title: string, count: any, component: any}>;
-    menu_items_settings: Array<{_id: string, icon: string, title: string, count: any, component: any}>;
-    menu_items_contacts: Array<{_id: string, list: string, icon: string, title: string, count: any, component: any}>;
-    menu_items_footer1: Array<{_id: string, src_img: string, list: string, icon: string, count: any, title: string, component: any}>;
-    menu_items_footer2: Array<{_id: string, src_img: string, list: string, icon: string, title: string, count: any, component: any}>;
+    menu_items_logout: any;//Array<{_id: string, icon: string, title: string, count: any, component: any}>;
+    menu_items_login: any;//Array<{_id: string, icon: string, title: string, count: any, component: any}>;
+    menu_items: any;//Array<{_id: string, icon: string, title: string, count: any, component: any}>;
+    menu_items_settings: any;//Array<{_id: string, icon: string, title: string, count: any, component: any}>;
+    menu_items_contacts: any;//Array<{_id: string, list: string, icon: string, title: string, count: any, component: any}>;
+    menu_items_footer1: any;//Array<{_id: string, src_img: string, list: string, icon: string, count: any, title: string, component: any}>;
+    menu_items_footer2: any;//Array<{_id: string, src_img: string, list: string, icon: string, title: string, count: any, component: any}>;
     ajaxInterval: any;
     activeMenu: string;
-    username: any;
     back: string;
     is_login: any = false;
     status: any = '';
@@ -62,51 +66,27 @@ export class MyApp {
     new_message: any = '';
     message: any = {};
     avatar: string = '';
-    isPay: any;
     is2D: any;
     stats: string = '';
     interval: any = true;
+    push2: PushObject;
 
     constructor(public platform: Platform,
                 public menu: MenuController,
                 public splashScreen: SplashScreen,
-                public appVersion: AppVersion,
                 public statusBar: StatusBar,
-                public api: ApiQuery,
-                public storage: Storage,
+                public api: ApiProvider,
                 public toastCtrl: ToastController,
                 public alertCtrl: AlertController,
                 public events: Events,
                 public market: Market,
                 public push: Push) {
 
-        // let status bar overlay webview
-
-// set status bar to white
-        //this.statusBar.styleBlackTranslucent();
-
-        this.api.http.get(api.url + '/user/menu/', api.header1).subscribe((data: any) => {
-
-            let menu = data.menu;
-            this.api.resultsPerPage = data.resultsPerPage;
-            this.initMenuItems(menu);
-
-            this.storage.get('user_id').then((val) => {
-
-                this.initPushNotification();
-                if (!val) {
-                    this.rootPage = LoginPage;
-                    this.menu_items = this.menu_items_logout;
-                } else {
-                    this.menu_items = this.menu_items_login;
-                    this.getBingo();
-                    this.rootPage = HomePage;
-                }
-            });
-        });
-
         this.closeMsg();
         var that = this;
+
+        //alert(this.api.pageName);
+
         this.ajaxInterval = setInterval(function () {
             //let page = that.nav.getActive();
 
@@ -120,42 +100,93 @@ export class MyApp {
         }, 10000);
 
         this.initializeApp();
-        this.menu1Active();
+        this.getMenu();
+
+        console.log("Constructor App");
         this.getAppVersion();
     }
 
+    getMenu(){
+      this.api.http.get(this.api.url + '/user/menu/', this.api.setHeaders()).subscribe((data: any) => {
+        //data = data.json();
+        let menu = data.menu;
+        this.api.resultsPerPage = data.resultsPerPage;
+        this.initMenuItems(menu);
+
+        this.api.storage.get('user_id').then((val) => {
+
+          this.initPushNotification();
+          if (!val) {
+            this.rootPage = LoginPage;
+            this.menu_items = this.menu_items_logout;
+          } else {
+            this.menu_items = this.menu_items_login;
+            this.getBingo();
+            this.rootPage = HomePage;
+          }
+          this.menu1Active(false);
+        });
+      },error => {
+        //alert(JSON.stringify(error));
+        this.reload()
+      });
+    }
+
+    reload(){
+      //this.splashScreen.show();
+      //window.location.reload();
+
+      //this.splashScreen.show();
+// Reload original app url (ie your index.html file)
+      this.platform.exitApp();
+      //window.location.href = 'market://details?id=com.interdate.richdate';
+      //window.open('market://details?id=com.interdate.richdate', '_system');
+      //window.location.href = 'richdate:///';
+      //richdate://
+      //this.splashScreen.hide();
+      //this.nav.remove(index);
+    }
+
     getAppVersion() {
-        this.api.http.get(this.api.url + '/open_api/version', this.api.header1).subscribe((data: any) => {
+        console.log("Version App");
+        this.api.http.get(this.api.url + '/app/version', this.api.header).subscribe((data: any) => {
 
-            //console.log(data.android.version );
-            //console.log(this.platform.is('android') );
+            console.log(data);
 
-            //alert(this.appVersion.getVersionCode());
-            this.appVersion.getVersionNumber().then((s) => {
-                if (data.android.version != s && this.platform.is('android')) {
-                    let prompt = this.alertCtrl.create({
-                        title: data.title,
-                        message: data.message,
-                        cssClass: 'new-version',
-                        buttons: [
-                            {
-                                text: data.cancel,
-                                handler: res => {
-                                    console.log('Cancel clicked');
-                                }
-                            },
-                            {
-                                text: data.update,
-                                handler: res1 => {
-                                    window.open('market://details?id=com.interdate.kosherdate', '_system');
+            if (parseInt(data.android.version) > parseInt(this.api.appVersion)) {
+                let prompt = this.alertCtrl.create({
+                    title: data.title,
+                    message: data.message,
+                    cssClass: 'new-version',
+                    buttons: [
+                        {
+                            text: data.cancel,
+                            handler: res => {
+                                console.log('Cancel clicked');
+                                if(data.android.update == '1'){
+                                    this.getAppVersion();
                                 }
                             }
-                        ]
-                    });
-                    prompt.present();
-                }
-            })
+                        },
+                        {
+                            text: data.update,
+                            handler: res1 => {
+                                window.open(data.android.url, '_system');
+                                if(data.android.update == '1'){
+                                    this.getAppVersion();
+                                }
+                            }
+                        }
+                    ]
+                });
+                prompt.present();
+            }
 
+
+        }, (err : any) => {
+            console.log('Error version');
+            console.log(err);
+            this.api.hideLoad();
 
         });
     }
@@ -170,82 +201,76 @@ export class MyApp {
 
     getStatistics() {
 
-        this.storage.get('user_id').then((id) => {
+        this.api.storage.get('user_id').then((id) => {
             if (id) {
-
                 //let page = this.nav.getActive();
                 let headers = this.api.setHeaders(true);
-                if (this.api.pageName == 'ChangePhotosPage') {
-                    headers = this.api.setHeaders(true, false, false, '1');
-                }
+                // if (this.api.pageName == 'ChangePhotosPage') {
+                //     headers = this.api.setHeaders(true, false, false, '1');
+                // }
 
-                this.api.http.get(this.api.url + '/user/statistics/', this.api.setHeaders1(true)).subscribe((data: any) => {
+                this.api.http.get(this.api.url + '/user/statistics/', headers).subscribe((data: any) => {
 
                     let statistics = data.statistics;
+                    if(typeof statistics != 'undefined') {
+                        //this.status = data.status;
+                        this.api.status = data.status;
 
-                    //this.status = data.status;
-                    this.api.status = data.status;
+                        this.menu_items_login.push();
+                        if (typeof statistics.newNotificationsNumber != 'undefined') {
+                            this.menu_items[2].count = statistics.newNotificationsNumber;
+                        }
+                        this.menu_items[0].count = statistics.newMessagesNumber;
 
-                    this.menu_items_login.push();
+                        // Contacts Sidebar Menu
+                        this.menu_items_contacts[0].count = statistics.looked;//viewed
+                        this.menu_items_contacts[1].count = statistics.lookedme;//viewedMe
+                        this.menu_items_contacts[2].count = statistics.contacted;//connected
+                        this.menu_items_contacts[3].count = statistics.contactedme;//connectedMe
+                        this.menu_items_contacts[4].count = statistics.fav;//favorited
+                        this.menu_items_contacts[5].count = statistics.favedme;//favoritedMe
+                        this.menu_items_contacts[6].count = statistics.black;//blacklisted
+                        //Footer Menu
+                        this.menu_items_footer2[2].count = statistics.newNotificationsNumber;
 
-                    this.menu_items[2].count = statistics.newNotificationsNumber;
-                    this.menu_items[0].count = statistics.newMessagesNumber;
+                        //this.menu_items_footer2[2].count = 0;
+                        this.menu_items_footer1[3].count = statistics.newMessagesNumber;
+                        if(typeof this.push2 != 'undefined') {
+                          this.push2.setApplicationIconBadgeNumber(statistics.newMessagesNumber);
+                        }
+                        this.menu_items_footer2[0].count = statistics.fav;//favorited
+                        this.menu_items_footer2[1].count = statistics.favedme;//favoritedMe
 
-                    // Contacts Sidebar Menu
-                    this.menu_items_contacts[0].count = statistics.looked;//viewed
-                    this.menu_items_contacts[1].count = statistics.lookedme;//viewedMe
-                    this.menu_items_contacts[2].count = statistics.contacted;//connected
-                    this.menu_items_contacts[3].count = statistics.contactedme;//connectedMe
-                    this.menu_items_contacts[4].count = statistics.fav;//favorited
-                    this.menu_items_contacts[5].count = statistics.favedme;//favoritedMe
-                    this.menu_items_contacts[6].count = statistics.black;//blacklisted
-                    //Footer Menu
-                    this.menu_items_footer2[2].count = statistics.newNotificationsNumber;
-                    //this.menu_items_footer2[2].count = 0;
-                    this.menu_items_footer1[3].count = statistics.newMessagesNumber;
-                    this.menu_items_footer2[0].count = statistics.fav;//favorited
-                    this.menu_items_footer2[1].count = statistics.favedme;//favoritedMe
+                        this.is2D = data.is2D;
+                        this.api.isPay = data.isPay;
 
-                    this.is2D = data.is2D;
-                    this.isPay = data.isPay;
+                        if (this.api.pageName != 'LoginPage' && this.api.pageName != 'SubscriptionPage' && this.api.pageName != 'ContactUsPage' && this.api.pageName != 'PagePage' && this.api.isPay == 0 && this.is2D == 0) {
+                            //this.status = 1;
+                            this.nav.setRoot(SubscriptionPage);
+                        } else if (this.api.pageName != 'ChangePhotosPage' && this.api.status === 'noimg') {
+                            //this.status = 1;
+                            let toast = this.toastCtrl.create({
+                                message: "לכניסה לאתר ריצ'דייט יש להעלות תמונה",
+                                duration: 3000
+                            });
 
-                    if (this.api.pageName != 'LoginPage' && this.api.pageName != 'SubscriptionPage' && this.api.pageName != 'ContactUsPage' && this.api.pageName != 'PagePage' && this.isPay == 0 && this.is2D == 0) {
-                        //this.status = 1;
-                        this.nav.setRoot(SubscriptionPage);
+                            toast.present();
+                            this.nav.setRoot(ChangePhotosPage);
+                        } else if (this.api.pageName != 'ChangePhotosPage' && this.api.pageName != 'ActivationPage' && this.api.status === 'notActivated') {
+                            //this.status = 1;
+                            this.nav.setRoot(ActivationPage);
+                        }
+
+                        if (this.api.pageName == 'ActivationPage' && this.api.status != 'notActivated') {
+                            this.nav.setRoot(HomePage);
+                        }
+
+                        //
+                        if ((this.api.pageName == 'SubscriptionPage' && this.api.isPay == 1)) {
+                            this.nav.setRoot(HomePage);
+                        }
+
                     }
-                    else if (this.api.pageName != 'ChangePhotosPage' && this.api.status === 'noimg') {
-                        //this.status = 1;
-                        let toast = this.toastCtrl.create({
-                            message: "לכניסה לאתר ריצ'דייט יש להעלות תמונה",
-                            duration: 3000
-                        });
-
-                        toast.present();
-                        this.nav.setRoot(ChangePhotosPage);
-                    } else if (this.api.pageName != 'ChangePhotosPage' && this.api.pageName != 'ActivationPage' && this.api.status === 'notActivated') {
-                        //this.status = 1;
-                        this.nav.setRoot(ActivationPage);
-                    }
-
-                    // if (this.api.pageName == 'HomePage') {
-                    //     if (this.api.status != '') {
-                    //         this.status = this.api.status;
-                    //     }
-                    // }
-
-                    if (this.api.pageName == 'ActivationPage' && this.api.status !='notActivated' ) {
-                        this.nav.setRoot(HomePage);
-                    }
-
-                    //
-                    if ((this.api.pageName == 'SubscriptionPage' && this.isPay == 1) ) {
-                        this.nav.setRoot(HomePage);
-                    }
-
-                    //this.bannerStatus();
-                    // First Sidebar Menu
-                    /*this.menu_items[2].count = statistics.newNotificationsNumber;
-                     this.menu_items[0].count = statistics.newMessagesNumber;*/
                 }, err => {
                     //console.log('Statistics Error');
                     this.api.hideLoad();
@@ -253,10 +278,10 @@ export class MyApp {
 
                         this.api.setHeaders(false, null, null);
                         // Removing data storage
-                        this.storage.remove('status');
-                        this.storage.remove('password');
-                        this.storage.remove('user_id');
-                        this.storage.remove('user_photo');
+                        this.api.storage.remove('status');
+                        this.api.storage.remove('password');
+                        this.api.storage.remove('user_id');
+                        this.api.storage.remove('user_photo');
                         this.nav.setRoot(LoginPage, {error: err['_body']});
                         this.nav.popToRoot();
                     }
@@ -272,13 +297,13 @@ export class MyApp {
 
 
     clearLocalStorage() {
+        //this.api.setHeadersfalse, null, null);
         this.api.setHeaders(false, null, null);
-        this.api.setHeaders1(false, null, null);
         // Removing data storage
-        this.storage.remove('status');
-        this.storage.remove('password');
-        this.storage.remove('user_id');
-        this.storage.remove('user_photo');
+        this.api.storage.remove('status');
+        this.api.storage.remove('password');
+        this.api.storage.remove('user_id');
+        this.api.storage.remove('user_photo');
 
         this.nav.push(LoginPage);
     }
@@ -291,30 +316,30 @@ export class MyApp {
 
         this.menu_items_logout = [
             {_id: '', icon: 'log-in', title: menu.login, component: LoginPage, count: ''},
-            {_id: 'blocked', icon: '', title: menu.forgot_password, component: 'PasswordRecoveryPage', count: ''},
-            {_id: '', icon: 'mail', title: menu.contact_us, component: 'ContactUsPage', count: ''},
+            {_id: 'blocked', icon: '', title: menu.forgot_password, component: PasswordRecoveryPage, count: ''},
+            {_id: '', icon: 'mail', title: menu.contact_us, component: ContactUsPage, count: ''},
             {_id: '', icon: 'person-add', title: menu.join_free, component: RegisterPage, count: ''},
         ];
 
         this.menu_items = [
-            {_id: 'inbox', icon: '', title: menu.inbox, component: 'InboxPage', count: ''},
-            {_id: 'the_area', icon: '', title: menu.the_arena, component: 'ArenaPage', count: ''},
-            {_id: 'notifications', icon: '', title: menu.notifications, component: 'NotificationsPage', count: ''},
+            {_id: 'inbox', icon: '', title: menu.inbox, component: InboxPage, count: ''},
+            {_id: 'the_area', icon: '', title: menu.the_arena, component: ArenaPage, count: ''},
+            {_id: 'notifications', icon: '', title: menu.notifications, component: NotificationsPage, count: ''},
             {_id: 'stats', icon: 'stats', title: menu.contacts, component: ProfilePage, count: ''},
-            {_id: 'search', icon: '', title: menu.search, component: 'SearchPage', count: ''},
+            {_id: 'search', icon: '', title: menu.search, component: SearchPage, count: ''},
             /* {_id: '', icon: 'information-circle', title: 'שאלות נפוצות', component: 'FaqPage', count: ''},*/
         ];
 
         this.menu_items_login = [
-            {_id: 'inbox', icon: '', title: menu.inbox, component: 'InboxPage', count: ''},
-            {_id: 'the_area', icon: '', title: menu.the_arena, component: 'ArenaPage', count: ''},
-            {_id: 'notifications', icon: '', title: menu.notifications, component: 'NotificationsPage', count: ''},
+            {_id: 'inbox', icon: '', title: menu.inbox, component: InboxPage, count: ''},
+            {_id: 'the_area', icon: '', title: menu.the_arena, component: ArenaPage, count: ''},
+            {_id: 'notifications', icon: '', title: menu.notifications, component: NotificationsPage, count: ''},
             {_id: 'stats', icon: 'stats', title: menu.contacts, component: ProfilePage, count: ''},
-            {_id: 'search', icon: '', title: menu.search, component: 'SearchPage', count: ''},
+            {_id: 'search', icon: '', title: menu.search, component: SearchPage, count: ''},
             /*
              {_id: '', icon: 'information-circle', title: 'שאלות נפוצות', component: 'FaqPage', count: ''},
              */
-            {_id: '', icon: 'mail', title: menu.contact_us, component: 'ContactUsPage', count: ''},
+            {_id: '', icon: 'mail', title: menu.contact_us, component: ContactUsPage, count: ''},
             {_id: 'subscribe', icon: 'ribbon', title: 'רכישת מנוי', component: SubscriptionPage, count: ''},
 
 
@@ -324,10 +349,10 @@ export class MyApp {
             {_id: 'edit_profile', icon: '', title: menu.edit_profile, component: RegisterPage, count: ''},
             {_id: 'edit_photos', icon: '', title: menu.edit_photos, component: ChangePhotosPage, count: ''},
             {_id: '', icon: 'person', title: menu.view_my_profile, component: ProfilePage, count: ''},
-            {_id: 'change_password', icon: '', title: menu.change_password, component: 'ChangePasswordPage', count: ''},
-            {_id: 'freeze_account', icon: '', title: menu.freeze_account, component: 'FreezeAccountPage', count: ''},
+            {_id: 'change_password', icon: '', title: menu.change_password, component: ChangePasswordPage, count: ''},
+            {_id: 'freeze_account', icon: '', title: menu.freeze_account, component: FreezeAccountPage, count: ''},
             {_id: 'settings', icon: '', title: menu.settings, component: SettingsPage, count: ''},
-            {_id: '', icon: 'mail', title: menu.contact_us, component: 'ContactUsPage', count: ''},
+            {_id: '', icon: 'mail', title: menu.contact_us, component: ContactUsPage, count: ''},
             {_id: 'logout', icon: 'log-out', title: menu.log_out, component: LoginPage, count: ''}
         ];
 
@@ -393,7 +418,7 @@ export class MyApp {
                 icon: '',
                 list: 'viewed',
                 title: menu.the_arena,
-                component: 'ArenaPage',
+                component: ArenaPage,
                 count: ''
             },
             {
@@ -411,7 +436,7 @@ export class MyApp {
                 icon: '',
                 list: '',
                 title: menu.inbox,
-                component: 'InboxPage',
+                component: InboxPage,
                 count: ''
             },
         ];
@@ -441,7 +466,7 @@ export class MyApp {
                 list: '',
                 icon: '',
                 title: menu.notifications,
-                component: 'NotificationsPage',
+                component: NotificationsPage,
                 count: ''
             },
             {
@@ -450,7 +475,7 @@ export class MyApp {
                 icon: '',
                 title: menu.search,
                 list: '',
-                component: 'SearchPage',
+                component: SearchPage,
                 count: ''
             },
         ];
@@ -499,7 +524,7 @@ export class MyApp {
 
     initializeApp() {
         this.platform.ready().then((readySource) => {
-            if(readySource=='cordova') {
+            if(readySource == 'cordova') {
                 // Okay, so the platform is ready and our plugins are available.
                 // Here you can do any higher level native things you might need
                 this.statusBar.show();
@@ -532,28 +557,84 @@ export class MyApp {
             }
         };
 
-        const push2: PushObject = this.push.init(options);
+        this.push2 = this.push.init(options);
 
-        push2.on('registration').subscribe((data) => {
+        this.push2.on('registration').subscribe((data) => {
             //this.deviceToken = data.registrationId;
-            this.storage.set('deviceToken', data.registrationId);
+            this.api.storage.set('deviceToken', data.registrationId);
             this.api.sendPhoneId(data.registrationId);
             //TODO - send device token to server
+            console.log('device token' + data.registrationId);
         });
 
-        push2.on('notification').subscribe((data) => {
+        this.push2.on('notification').subscribe((data) => {
             //let self = this;
             //if user using app and push notification comes
-            if (data.additionalData.foreground == false) {
-                this.storage.get('user_id').then((val) => {
-                    if (val) {
-                        this.nav.push('InboxPage');
-                    } else {
-                        this.nav.push('LoginPage');
+                // this.api.storage.get('user_id').then((val) => {
+                //     if (val) {
+                //
+                //         this.nav.push('InboxPage');
+                //     } else {
+                //         this.nav.push('LoginPage');
+                //     }
+                // });
+
+
+            this.api.storage.get('user_id').then((val) => {
+                console.log("NOTICE: " + JSON.stringify(data) + ' ' + val);
+                if (val) {
+                    if(data.additionalData.foreground == false){
+                        this.openPushMessage(data);
+                    }else{
+                        if(this.api.pageName != 'DialogPage' && data.additionalData.onlyInBackgroundMode == '0') {
+                            let alert = this.alertCtrl.create({
+                                title: data.additionalData.titleMess,
+                                message: data.message,
+                                buttons: [
+                                    {
+                                        text: data.additionalData.buttons[0],
+                                        role: 'cancel',
+                                        handler: () => {
+                                            console.log('Cancel clicked');
+                                        }
+                                    },
+                                    {
+                                      text: data.additionalData.buttons[1],
+                                      handler: () => {
+                                          this.openPushMessage(data)
+                                      }
+                                    }
+                                ]
+                            });
+                            alert.present();
+                        }
+                    }
+                } else {
+                    this.nav.push(LoginPage);
+                }
+            });
+        });
+    }
+
+    openPushMessage(dataOpen){
+        console.log(JSON.stringify(dataOpen));
+
+        if(typeof dataOpen.additionalData.urlRedirect == 'undefined'){
+            //alert(typeof dataOpen.additionalData.userId == 'undefined');
+            if(typeof dataOpen.additionalData.userId == 'undefined'){
+                this.nav.push(InboxPage);
+            }else{
+                //alert(JSON.stringify(dataOpen));
+                this.nav.push(DialogPage, {
+                    user: {
+                        userId: dataOpen.additionalData.userId,
+                        userNick: dataOpen.additionalData.userNick
                     }
                 });
             }
-        });
+        }else{
+          /*var ref = */window.open(dataOpen.additionalData.urlRedirect, '_system');
+        }
     }
 
     swipeFooterMenu() {
@@ -580,8 +661,10 @@ export class MyApp {
     }
 
     getBanner() {
-        this.api.http.get(this.api.url + '/user/banner', this.api.header1).subscribe((data:any) => {
+        this.api.http.get(this.api.url + '/user/banner_new', this.api.header).subscribe((data:any) => {
             this.banner = data;
+            this.api.isBanner = (this.banner.src == '') ? false : true;
+            console.log("isBanner: " + this.api.isBanner);
         });
     }
 
@@ -645,7 +728,7 @@ export class MyApp {
 
 
     homePage() {
-        this.storage.get('user_id').then((val) => {
+        this.api.storage.get('user_id').then((val) => {
             if (val) {
                 this.nav.setRoot(HomePage);
             } else {
@@ -656,12 +739,13 @@ export class MyApp {
     }
 
     getBingo() {
-        this.storage.get('user_id').then((val) => {
+        this.api.storage.get('user_id').then((val) => {
             if (val && this.api.password) {
-                this.api.http.get(this.api.url + '/user/bingo', this.api.setHeaders1(true)).subscribe((data:any) => {
-                    //this.storage.set('status', this.status);
+                this.api.http.get(this.api.url + '/user/bingo', this.api.setHeaders(true)).subscribe((data:any) => {
+                    //this.api.storage.set('status', this.status);
                     this.texts = data.texts;
                     this.avatar = data.texts.avatar;
+                    this.api.myPhotos = data.photos;
                     // DO NOT DELETE
                     /*if (this.status != data.status) {
                      this.status = data.status;
@@ -674,8 +758,8 @@ export class MyApp {
                         let params = JSON.stringify({
                             bingo: data.texts.items[0]
                         });
-                        this.nav.push('BingoPage', {data: data});
-                        this.api.http.post(this.api.url + '/user/bingo/splashed', params, this.api.setHeaders1(true)).subscribe((data:any) => {
+                        this.nav.push(BingoPage, {data: data});
+                        this.api.http.post(this.api.url + '/user/bingo/splashed', params, this.api.setHeaders(true)).subscribe((data:any) => {
                         });
                     }
                 });
@@ -686,30 +770,11 @@ export class MyApp {
     dialogPage() {
         let user = {id: this.new_message.userId};
         this.closeMsg();
-        this.nav.push('DialogPage', {user: user});
+        this.nav.push(DialogPage, {user: user});
     }
 
     getMessage() {
-        //let page = this.nav.getActive();
-        /*
-         this.api.http.get(this.api.url + '/user/new/messages', this.api.setHeaders1(true)).subscribe((data: any) => {
 
-         if ((this.new_message == '' || typeof this.new_message == 'undefined') && !(this.api.pageName == 'DialogPage')) {
-         this.new_message = data.messages[0];
-         if (typeof this.new_message == 'object') {
-         this.http.get(this.api.url + '/user/messages/notify/' + this.new_message.id, this.api.setHeaders(true)).subscribe(data => {
-         });
-         }
-         }
-
-         this.message = data;
-
-         this.menu_items[2].count = data.newNotificationsNumber;
-         this.menu_items[0].count = data.newMessagesNumber;
-         this.menu_items_footer2[2].count = data.newNotificationsNumber;
-         this.menu_items_footer1[3].count = data.newMessagesNumber;
-         });
-         */
     }
 
     checkStatus() {
@@ -727,10 +792,10 @@ export class MyApp {
                     toast.present();
                 }
                 //alert(page);
-                this.nav.push('RegisterPage');
+                this.nav.push(RegisterPage);
                 this.nav.push(ChangePhotosPage);
             } else if (this.api.status == 'not_activated') {
-                this.nav.push('ActivationPage');
+                this.nav.push(ActivationPage);
             }
         }
         if (((this.api.pageName == 'ActivationPage') && this.api.status == 'login')) {
@@ -770,22 +835,11 @@ export class MyApp {
 
                 if (!(that.api.pageName == 'LoginPage') && that.api.username != false && that.api.username != null) {
                     that.getBingo();
-                    // New Message Notification
-                    //that.checkStatus();
-                    //that.getMessage();
                     that.getStatistics();
                 }
             }, 10000);
-            //this.events.subscribe('statistics:updated', () => {
-                // user and time are the same arguments passed in `events.publish(user, time)`
-                //this.getStatistics();
-            //});
 
-            //let page = this.nav.getActive();
-            //if (this.api.status != '') {
-                //this.status = this.api.status;
-            //}
-            if (this.api.pageName != 'LoginPage' && this.api.pageName != 'SubscriptionPage' && this.api.pageName != 'ContactUsPage' && this.api.pageName != 'PagePage' && this.isPay == 0 && this.is2D == 0 && this.api.status == 1) {
+            if (this.api.pageName != 'LoginPage' && this.api.pageName != 'SubscriptionPage' && this.api.pageName != 'ContactUsPage' && this.api.pageName != 'PagePage' && this.api.isPay == 0 && this.is2D == 0 && this.api.status == 1) {
                 //this.status = 1;
                 this.nav.setRoot(SubscriptionPage);
             } else if (this.api.pageName != 'ChangePhotosPage' && this.api.status === 'noimg') {
@@ -802,12 +856,6 @@ export class MyApp {
                 this.nav.setRoot(ActivationPage);
             }
 
-            // if (this.api.pageName == 'HomePage') {
-            //     if (this.api.status != '') {
-            //         this.status = this.api.status;
-            //     }
-            // }
-
             if (this.api.pageName == 'DialogPage' || this.api.pageName == 'SubscriptionPage') {
                 $('.footerMenu').hide();
             } else {
@@ -816,12 +864,8 @@ export class MyApp {
 
             let el = this;
             window.addEventListener('native.keyboardshow', function () {
-                //let page = el.nav.getActive();
-                //this.keyboard.disabledScroll(true);
+
                 $('.footerMenu, .back-btn, .link-banner').hide();
-                /*if (el.api.pageName != 'LoginPage' && el.api.pageName != 'DialogPage') {
-                 $('.footer').hide();
-                 }*/
 
                 $('.editional-btn').hide();
 
@@ -838,32 +882,20 @@ export class MyApp {
                 }
             });
             window.addEventListener('native.keyboardhide', function () {
-                //let page = el.nav.getActive();
-                //$('.footerMenu, .back-btn').show();
-                //$('.back-btn').show();
-                //el.bannerStatus();
-                /*if ((el.api.pageName != 'LoginPage') && (el.api.pageName != 'DialogPage')) {
-                 $('.footer').show();
-                 }*/
+
                 $('.editional-btn').show();
 
                 if (el.api.pageName == 'DialogPage') {
                     $('.back-btn').show();
                     $('.footerMenu').hide();
-                    //setTimeout(function () {
-                    //$('.scroll-content, .fixed-content').css({'margin-bottom': '115px'});
+
                     $('.scroll-content, .fixed-content').css({'margin-bottom': '65px'});
                     el.content.scrollTo(0, 999999, 300);
-                    //}, 600);
+
                 } else {
                     if (el.is_login) {
                         $('.footerMenu').show();
-
-                        //$('.back-btn').show();
-                        //setTimeout(function () {
-                        //$('.scroll-content, .fixed-content').css({'margin-bottom': '57px'});
                         $('.scroll-content, .fixed-content').css({'margin-bottom': '57px'});
-                        //}, 500);
                     } else {
                         $('.scroll-content, .fixed-content').css({'margin-bottom': '0px'});
                     }
@@ -872,18 +904,16 @@ export class MyApp {
             });
 
             if (el.api.pageName == 'LoginPage') {
-                //clearInterval(this.interval);
                 this.interval = false;
-                //this.avatar = '';
             }
             if (el.api.pageName == 'HomePage' && this.interval == false) {
                 //$('.link-banner').show();
                 this.interval = true;
                 this.getBingo();
             }
-            this.api.setHeaders(true);
+            //this.api.setHeaders(true);
 
-            this.storage.get('status').then((val) => {
+            this.api.storage.get('status').then((val) => {
                 if (this.api.status == '') {
                     this.api.status = val;
                 }
@@ -896,17 +926,8 @@ export class MyApp {
                     this.is_login = true;
                     this.menu_items = this.menu_items_login;
                 }
-                /*if (el.api.pageName == 'HelloIonicPage') {
-                 $('.link-banner').show();
-                 }
-
-                 if (el.api.pageName == 'LoginPage') {
-                 $('.link-banner').hide();
-                 }*/
-                //this.bannerStatus();
 
             });
-            this.username = this.api.username;
         });
     }
 }

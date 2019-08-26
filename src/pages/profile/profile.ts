@@ -1,9 +1,9 @@
 import {Component, ViewChild} from "@angular/core";
-import { NavController, NavParams, Nav, ToastController, Content} from "ionic-angular";
-import {Http} from "@angular/http";
-import {ApiQuery} from "../../library/api-query";
-import {Storage} from "@ionic/storage";
-declare var $: any;
+import {NavController, NavParams, Nav, ToastController, Content} from "ionic-angular";
+import * as $ from "jquery";
+import {FullScreenProfilePage} from "../full-screen-profile/full-screen-profile";
+import {DialogPage} from "../dialog/dialog";
+import {ApiProvider} from "../../providers/api/api";
 /**
  * Generated class for the ProfilePage page.
  *
@@ -23,9 +23,9 @@ export class ProfilePage {
 
     user: any = {};
 
-    texts: { lock: any, unlock: any } = {lock: '', unlock: ''};
+    texts: any = {lock: '', unlock: ''};
 
-    formReportAbuse: { title: any, buttons: { cancel: any, submit: any }, text: { label: any, name: any, value: any } } =
+    formReportAbuse: any =
     {title: '', buttons: {cancel: '', submit: ''}, text: {label: '', name: '', value: ''}};
 
     myId: any = false;
@@ -36,15 +36,9 @@ export class ProfilePage {
     constructor(public toastCtrl: ToastController,
                 public navCtrl: NavController,
                 public navParams: NavParams,
-                public http: Http,
-                public api: ApiQuery,
-                public storage: Storage) {
+                public api: ApiProvider) {
 
-        this.storage = storage;
-
-        //this.api.showLoad();
-
-        var user = navParams.get('user');
+        let user = navParams.get('user');
 
         if( user && typeof user.photoLarge != 'undefined'){
             user.photos = [{url:user.photoLarge}];
@@ -54,24 +48,23 @@ export class ProfilePage {
 
             this.user = user;
 
-            this.http.get(api.url + '/user/profile/' + this.user.id, api.setHeaders(true)).subscribe(data => {
-                this.user = data.json();
-                this.formReportAbuse = data.json().formReportAbuse;
-                this.texts = data.json().texts;
+            this.api.http.get(api.url + '/user/profile/' + this.user.id, api.setHeaders(true)).subscribe((data: any) => {
+                this.user = data;
+                this.formReportAbuse = data.formReportAbuse;
+                this.texts = data.texts;
                 this.api.hideLoad();
                 this.imageClick = true;
             });
         } else {
 
-            this.storage.get('user_id').then((val) => {
-                //alert(val);
+            this.api.storage.get('user_id').then((val) => {
                 if (val) {
                     this.myId = val;
-                    this.http.get(api.url + '/user/profile/' + this.myId, api.setHeaders(true)).subscribe(data => {
-                        this.user = data.json();
+                    this.api.http.get(api.url + '/user/profile/' + this.myId, api.setHeaders(true)).subscribe((data: any) => {
+                        this.user = data;
 
-                        this.formReportAbuse = data.json().formReportAbuse;
-                        this.texts = data.json().texts;
+                        this.formReportAbuse = data.formReportAbuse;
+                        this.texts = data.texts;
                         this.api.hideLoad();
                         this.imageClick = true;
                     });
@@ -102,42 +95,21 @@ export class ProfilePage {
         this.content.scrollTo(0, this.content.getContentDimensions().scrollHeight, 300);
     }
 
-    /*addFavorites(user) {
-
-        if (!user.is_in_favorite_list) {
-            user.is_in_favorite_list = true;
-
-
-            let params = JSON.stringify({
-                list: 'Favorite'
-            });
-
-            this.http.post(this.api.url + '/user/managelists/favi/1/' + this.user.userId, params, this.api.setHeaders(true)).subscribe(data => {
-                let toast = this.toastCtrl.create({
-                    message: data.json().success,
-                    duration: 3000
-                });
-
-                toast.present();
-            });
-        }
-    }*/
-
-    addFavorites(user) {
+    addFavorites() {
         // this.user.isAddFavorite = true;
-
-        if (user.is_in_favorite_list  == true) {
-            user.is_in_favorite_list  = false;
-            var url = this.api.url + '/user/favorites/' + this.user.userId+'/delete';
-            var message = 'has been removed from Favorites';
+        let url, message;
+        if (this.user.is_in_favorite_list  == true) {
+            this.user.is_in_favorite_list  = false;
+            url = this.api.url + '/user/favorites/' + this.user.userId+'/delete';
+            message = 'has been removed from Favorites';
         } else {
-            user.is_in_favorite_list  = true;
-            var  url = this.api.url + '/user/favorites/' + this.user.userId;
-            var message = 'has been added to Favorites';
+            this.user.is_in_favorite_list  = true;
+            url = this.api.url + '/user/favorites/' + this.user.userId;
+            message = 'has been added to Favorites';
         }
 
         let toast = this.toastCtrl.create({
-            message: user.nickName + ' ' + message,
+            message: this.user.nickName + ' ' + message,
             duration: 2000
         });
 
@@ -149,7 +121,7 @@ export class ProfilePage {
             list: 'Favorite',
         });
 
-        this.http.post( url, params, this.api.setHeaders(true)).subscribe(data => {
+        this.api.http.post( url, params, this.api.setHeaders(true)).subscribe((data: any) => {
             console.log(data);
         });
     }
@@ -171,9 +143,9 @@ export class ProfilePage {
 
         var act = this.user.is_in_black_list == 1 ? 1 : 0;
 
-        this.http.post(this.api.url + '/user/managelists/black/' + act + '/' + this.user.userId, params, this.api.setHeaders(true)).subscribe(data => {
+        this.api.http.post(this.api.url + '/user/managelists/black/' + act + '/' + this.user.userId, params, this.api.setHeaders(true)).subscribe((data: any) => {
             let toast = this.toastCtrl.create({
-                message: data.json().success,
+                message: data.success,
                 duration: 3000
             });
 
@@ -182,21 +154,21 @@ export class ProfilePage {
         });
     }
 
-    addLike(user) {
-        user.isAddLike = true;
+    addLike() {
+        this.user.isAddLike = true;
         let toast = this.toastCtrl.create({
-            message: ' עשית לייק ל' + user.nickName,
+            message: ' עשית לייק ל' + this.user.nickName,
             duration: 2000
         });
 
         toast.present();
 
         let params = JSON.stringify({
-            toUser: user.userId,
+            toUser: this.user.userId,
         });
 
 
-        this.http.post(this.api.url + '/user/like/' + user.userId, params, this.api.setHeaders(true)).subscribe(data => {
+        this.api.http.post(this.api.url + '/user/like/' + this.user.userId, params, this.api.setHeaders(true)).subscribe((data: any) => {
             console.log(data);
         }, err => {
             console.log("Oops!");
@@ -205,19 +177,16 @@ export class ProfilePage {
     }
 
     fullPagePhotos() {
-
-        //alert(JSON.stringify(this.user.photos[0].usr));
-
         if(this.user.photos[0].url != 'http://www.richdate.co.il/images/users/small/0.jpg') {
-            this.navCtrl.push('FullScreenProfilePage', {
+            this.navCtrl.push(FullScreenProfilePage, {
                 user: this.user
             });
         }
     }
 
-    toDialog(user) {
-        this.navCtrl.push('DialogPage', {
-            user: user
+    toDialog() {
+        this.navCtrl.push(DialogPage, {
+            user: this.user
         });
     }
 
@@ -232,12 +201,11 @@ export class ProfilePage {
     }
 
     abuseSubmit() {
-
         let params = JSON.stringify({
             abuseMessage: this.formReportAbuse.text.value,
         });
 
-        this.http.post(this.api.url + '/user/abuse/' + this.user.userId, params, this.api.setHeaders(true)).subscribe(data => {
+        this.api.http.post(this.api.url + '/user/abuse/' + this.user.userId, params, this.api.setHeaders(true)).subscribe((data: any) => {
 
             let toast = this.toastCtrl.create({
                 message: 'הודעתך נשלחה בהצלחה להנהלת האתר',

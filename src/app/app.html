@@ -32,7 +32,7 @@
                      *ngIf="avatar != '/images/no_photo_2.jpg' && avatar != '/images/no_photo_1.jpg'"
                      [ngStyle]="{ 'background-image': 'url(' + avatar + ')'}"></div>
 
-                <div (click)="openPage(menu_items_settings[2])" class="username">{{ username }}</div>
+                <div (click)="openPage(menu_items_settings[2])" class="username">{{ api.username }}</div>
             </div>
             <div *ngFor="let menu_item of menu_items">
                 <button *ngIf="(menu_item._id == 'subscribe' && isPay == '0') || menu_item._id != 'subscribe'" ion-item (click)="openPage(menu_item)">
@@ -74,7 +74,6 @@
           class="side-menu" id="menu3">
     <ion-content>
         <ion-list>
-            <!--<div class="statistics">{{ stats }}</div>-->
             <button color="light" small class="left" ion-button icon-right outline menuClose="menu3"
                     (click)="menu1Active()">
                 <ion-icon name="arrow-back"></ion-icon>
@@ -90,27 +89,15 @@
         </ion-list>
     </ion-content>
 </ion-menu>
-<!--<img style="display: none;" class="banner" src="/images/spedate1.gif">-->
-<a class="link-banner"  *ngIf="banner?.src != '.' && is_login" href="{{banner?.link}}" (click)="goTo();">
-        <img class="banner" src="{{ banner?.src}}">"#"
+
+<a class="link-banner"  *ngIf="banner?.src != '' && banner?.src != '.' && is_login && api.pageName != 'SubscriptionPage' && api.pageName != 'ChangePhotosPage' && api.pageName != 'ArenaPage' && api.pageName != 'DialogPage' && api.pageName != 'NotificationsPage' && api.pageName != 'FullScreenProfilePage'" href="{{banner?.link}}" (click)="goTo();">
+        <img class="banner" src="{{ banner?.src}}">
 </a>
 <ion-footer *ngIf="is_login" (swipe)="swipeFooterMenu()">
-    <!--<div *ngIf="new_message && new_message.is_not_sent_today == true" class="messageNotify">
-        <ion-icon (click)="closeMsg()" name="close"></ion-icon>
-        <div *ngIf="new_message?.mainPhoto" class="avatar" (click)="dialogPage()"
-             [ngStyle]="{ 'background-image': 'url(' + new_message?.mainPhoto + ')'}"></div>
-        <div *ngIf="!new_message?.mainPhoto" class="avatar" (click)="dialogPage()"
-             [ngStyle]="{ 'background-image': 'url(' + api.url + '/' + new_message?.noPhoto + ')'}"></div>
-        <div class="content" (click)="dialogPage()">
-            <div class="name">{{ new_message.username }}</div>
-            <div class="text">{{ message.newMessagesText }}</div>
-        </div>
-    </div>-->
     <div class="footerMenu" position="bottom">
         <div class="footer-menu">
             <ul class="menu-one">
                 <li (click)="swipeFooterMenu()" class="more-btn menu-left">
-                    <!--<ion-icon large name="md-more"></ion-icon>-->
                     <ion-icon class="left-arrow" name="md-arrow-dropright"></ion-icon>
                     <ion-icon class="right-arrow" name="md-arrow-dropleft"></ion-icon>
                 </li>

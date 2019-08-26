@@ -1,9 +1,6 @@
 import {Component} from "@angular/core";
 import {NavController, NavParams, ToastController} from "ionic-angular";
-import {ApiQuery} from "../../library/api-query";
-import {Http} from "@angular/http";
-import {Storage} from "@ionic/storage";
-
+import {ApiProvider} from "../../providers/api/api";
 
 /*
  Generated class for the Settings page.
@@ -11,6 +8,7 @@ import {Storage} from "@ionic/storage";
  See http://ionicframework.com/docs/v2/components/#navigation for more info on
  Ionic pages and navigation.
  */
+
 @Component({
     selector: 'page-settings',
     templateUrl: 'settings.html'
@@ -23,19 +21,17 @@ export class SettingsPage {
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
                 private toastCtrl: ToastController,
-                public http: Http,
-                public storage: Storage,
-                public api: ApiQuery) {
+                public api: ApiProvider) {
 
-        this.http.get(api.url + '/user/settings', api.setHeaders(true)).subscribe(data => {
+        this.api.http.get(api.url + '/user/settings', api.setHeaders(true)).subscribe((data: any) => {
             //this.form = data.json().settings;
-            this.form.newMessPushNotif = Boolean(parseInt(data.json().settings.newMessPushNotif));
-            this.form.userGetMsgToEmail = Boolean(parseInt(data.json().settings.userGetMsgToEmail));
+            this.form.newMessPushNotif = Boolean(parseInt(data.settings.newMessPushNotif));
+            this.form.userGetMsgToEmail = Boolean(parseInt(data.settings.userGetMsgToEmail));
         });
 
 
 
-        this.storage.get('enableFingerAuth').then((enableFingerAuth) => {
+        this.api.storage.get('enableFingerAuth').then((enableFingerAuth) => {
             if (enableFingerAuth && enableFingerAuth == '1') {
                 // alert('enableFingerAuth' + enableFingerAuth);
                 this.form.fingerprint = 1;
@@ -54,8 +50,7 @@ export class SettingsPage {
 
     submit(type) {
 
-        let name;
-        let value;
+        let name,value;
 
         if (type == 'email') {
 
@@ -64,7 +59,7 @@ export class SettingsPage {
 
             this.presentToast();
 
-            this.http.post(this.api.url + '/user/settings/' + name + '/' + value, {}, this.api.setHeaders(true)).subscribe(data => {
+            this.api.http.post(this.api.url + '/user/settings/' + name + '/' + value, {}, this.api.setHeaders(true)).subscribe((data: any) => {
             });
 
         } else if (type == 'push') {
@@ -73,13 +68,13 @@ export class SettingsPage {
 
             this.presentToast();
 
-            this.http.post(this.api.url + '/user/settings/' + name + '/' + value, {}, this.api.setHeaders(true)).subscribe(data => {
+            this.api.http.post(this.api.url + '/user/settings/' + name + '/' + value, {}, this.api.setHeaders(true)).subscribe((data: any) => {
             });
         } else if ('fingerprint') {
             if (this.form.fingerprint == true) {
-                this.storage.set('enableFingerAuth', '1');
+                this.api.storage.set('enableFingerAuth', '1');
             } else {
-                this.storage.set('enableFingerAuth', '0');
+                this.api.storage.set('enableFingerAuth', '0');
             }
         }
     }

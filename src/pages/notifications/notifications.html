@@ -6,17 +6,17 @@
 -->
 
 <ion-header>
-    
+
       <ion-navbar>
         <ion-title>notifications</ion-title>
       </ion-navbar>
-    
+
     </ion-header>
-    
-    
+
+
     <ion-content padding>
       <div padding><span [innerHTML]="texts?.description"></span></div>
-    
+
           <ion-segment  [(ngModel)]="tabs" color="secondary">
             <ion-segment-button value="{{ like }}">
               <img class="notifications" src="assets/img/icons/like-pink.png">
@@ -61,12 +61,13 @@
           </div>
         </div>
       </div>
+
     </ion-content>
     <ion-footer>
-    
+
       <ion-navbar>
         <ion-title></ion-title>
       </ion-navbar>
-    
+
     </ion-footer>
-    
+

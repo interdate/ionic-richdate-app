@@ -5,30 +5,28 @@
   Ionic pages and navigation.
 -->
 <ion-header>
-  
-    <ion-navbar>
-      <ion-title>fullScreenProfile</ion-title>
-    </ion-navbar>
-  
+
+
+
   </ion-header>
   <ion-content>
-    <div *ngIf="myId != user.userId" class="profile-buttons">
-      <div (click)="toDialog(user)" class="message-profile-btn"><img src="assets/img/icons/pmsgbot.png"></div>
-      <div *ngIf="user?.isAddLike == '0'" (click)="addLike(user)" class="like-profile-btn"><img
+    <div *ngIf="myId != user.userId && user.userId > 0" class="profile-buttons">
+      <div (click)="toDialog()" tappable class="message-profile-btn"><img src="assets/img/icons/pmsgbot.png"></div>
+      <div *ngIf="user?.isAddLike == '0'" tappable (click)="addLike()" class="like-profile-btn"><img
               src="assets/img/icons/plike.png"></div>
       <div *ngIf="user.isAddLike == '1'" class="disabled like-profile-btn"><img src="assets/img/icons/plike.png"></div>
-      <div *ngIf="!user.is_in_favorite_list && user.userId" (click)="addFavorites(user)"
+      <div *ngIf="!user.is_in_favorite_list && user.userId" tappable (click)="addFavorites()"
            class="favorite-profile-btn">
         <img src="assets/img/icons/padd.png"></div>
-      <div *ngIf="user.is_in_favorite_list" (click)="addFavorites(user)" class="disabled favorite-profile-btn"><img src="assets/img/icons/cap.png"></div>
-    </div> 
-    <div class="close-warp" (click)="goBack()">
+      <div *ngIf="user.is_in_favorite_list" tappable (click)="addFavorites()" class="disabled favorite-profile-btn"><img src="assets/img/icons/cap.png"></div>
+    </div>
+    <div class="close-warp" (click)="goBack()" tappable>
      <div class="close"><img alt="close" src="assets/img/icons/psclose.png"></div>
      </div>
     <ion-slides>
-      <ion-slide *ngFor="let usr of user.photos">
+      <ion-slide *ngFor="let usr of user.photos" [ngClass]="{'private': usr.private == '1'}">
         <img src="{{ usr.url }}">
       </ion-slide>
-  
+
     </ion-slides>
   </ion-content>

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController } from 'ionic-angular';
-import { ApiQuery } from '../../library/api-query';
-import { Http } from '@angular/http';
+import { NavController, NavParams, ToastController } from 'ionic-angular';
+import {DialogPage} from "../dialog/dialog";
+import {ApiProvider} from "../../providers/api/api";
 
 /**
  * Generated class for the FullScreenProfilePage page.
@@ -10,7 +10,6 @@ import { Http } from '@angular/http';
  * Ionic pages and navigation.
  */
 
-@IonicPage()
 @Component({
   selector: 'page-full-screen-profile',
   templateUrl: 'full-screen-profile.html',
@@ -19,55 +18,55 @@ export class FullScreenProfilePage {
 
   user:any;
   myId:any;
-  defurl:any; 
+  defurl:any;
 
-  constructor(public toastCtrl:ToastController,
-              public navCtrl:NavController,
-              public navParams:NavParams,
-              public http:Http,
-              public api:ApiQuery) {
+    constructor(
+        public toastCtrl:ToastController,
+        public navCtrl:NavController,
+        public navParams:NavParams,
+        public api: ApiProvider
+    ) {
+        this.user = navParams.get('user');
 
-      this.user = navParams.get('user');
+        this.api.storage.get('user_id').then((val) => {
 
-      this.api.storage.get('user_id').then((val) => {
+            if (val) {
+                this.myId = val;
+            }
+        });
+    }
 
-          if (val) {
-              this.myId = val;
-          }
-      });
-  }
+    goBack() {
+        console.log('test');
+        this.navCtrl.pop();
+    }
 
-  goBack() {
-      console.log('test');
-      this.navCtrl.pop();
-  }
-
-  ionViewDidLoad() {
-      console.log('ionViewDidLoad FullScreenProfilePage');
-  }
+    ionViewDidLoad() {
+        console.log('ionViewDidLoad FullScreenProfilePage');
+    }
 
 
-  toDialog(user) {
-      this.navCtrl.push('DialogPage', {
-          user: user
-      });
-  }
+    toDialog() {
+        this.navCtrl.push(DialogPage, {
+            user: this.user
+        });
+    }
 
-    addFavorites(user) {
+    addFavorites() {
         // this.user.isAddFavorite = true;
-
-        if (user.is_in_favorite_list  == true) {
-            user.is_in_favorite_list  = false;
-            var url = this.api.url + '/user/favorites/' + this.user.userId+'/delete';
-            var message = 'has been removed from Favorites';
+        let url, message;
+        if (this.user.is_in_favorite_list  == true) {
+            this.user.is_in_favorite_list  = false;
+            url = this.api.url + '/user/favorites/' + this.user.userId+'/delete';
+            message = 'has been removed from Favorites';
         } else {
-            user.is_in_favorite_list  = true;
-            var  url = this.api.url + '/user/favorites/' + this.user.userId;
-            var message = 'has been added to Favorites';
+            this.user.is_in_favorite_list  = true;
+            url = this.api.url + '/user/favorites/' + this.user.userId;
+            message = 'has been added to Favorites';
         }
 
         let toast = this.toastCtrl.create({
-            message: user.nickName + ' ' + message,
+            message: this.user.nickName + ' ' + message,
             duration: 2000
         });
 
@@ -79,25 +78,25 @@ export class FullScreenProfilePage {
             list: 'Favorite',
         });
 
-        this.http.post( url, params, this.api.setHeaders(true)).subscribe(data => {
+        this.api.http.post( url, params, this.api.setHeaders(true)).subscribe((data: any) => {
             console.log(data);
         });
     }
 
-  addLike(user) {
-      user.isAddLike = true;
+  addLike() {
+      this.user.isAddLike = true;
       let toast = this.toastCtrl.create({
-          message: ' עשית לייק ל' + user.username,
+          message: ' עשית לייק ל' + this.user.username,
           duration: 2000
       });
 
       toast.present();
 
       let params = JSON.stringify({
-          toUser: user.id,
+          toUser: this.user.id,
       });
 
-      this.http.post(this.api.url + '/api/v1/likes/' + user.id, params, this.api.setHeaders(true)).subscribe(data => {
+      this.api.http.post(this.api.url + '/api/v1/likes/' + this.user.id, params, this.api.setHeaders(true)).subscribe((data: any) => {
           console.log(data);
       }, err => {
           console.log("Oops!");

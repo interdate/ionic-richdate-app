@@ -6,10 +6,10 @@
 <ion-header>
 
   <ion-navbar>
-    <ion-title>{{data.label}}</ion-title>
     <ion-buttons>
-      <button (click)="close()" end ion-button>Close</button>
+      <button (click)="close()" end ion-button>סגור</button>
     </ion-buttons>
+    <ion-title> {{data.label}} </ion-title>
   </ion-navbar>
   <ion-searchbar *ngIf="data.search" data-placeholder="חיפוש" (ionInput)="getItems($event)"></ion-searchbar>
 </ion-header>

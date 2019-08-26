@@ -1,7 +1,6 @@
 import {Component} from '@angular/core';
-import {IonicPage, NavController, NavParams, ToastController} from 'ionic-angular';
-import {ApiQuery} from '../../library/api-query';
-import {Http} from '@angular/http';
+import {NavController, NavParams, ToastController} from 'ionic-angular';
+import {ApiProvider} from "../../providers/api/api";
 
 /**
  * Generated class for the PasswordRecoveryPage page.
@@ -10,7 +9,6 @@ import {Http} from '@angular/http';
  * Ionic pages and navigation.
  */
 
-@IonicPage()
 @Component({
     selector: 'page-password-recovery',
     templateUrl: 'password-recovery.html',
@@ -23,21 +21,14 @@ export class PasswordRecoveryPage {
 
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
-                public http: Http,
-                public api: ApiQuery,
+                public api: ApiProvider,
                 public toastCtrl: ToastController) {
-
-        /*this.http.get(api.url + '/user/password', api.header).subscribe(data => {
-            this.form = data.json();
-        }, err => {
-            console.log("Oops!");
-        });*/
 
     }
 
     formSubmit() {
         if( this.form.form.email.value != "") {
-            this.http.get(this.api.url + '/recovery/' + this.form.form.email.value, this.api.header).subscribe(data => this.validate(data.json()));
+            this.api.http.get(this.api.url + '/recovery/' + this.form.form.email.value, this.api.header).subscribe(data => this.validate(data));
         }else{
             this.email_err = "כתובת האימייל שהזנת לא נמצאה במערכת";
         }

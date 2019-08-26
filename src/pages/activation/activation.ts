@@ -1,10 +1,9 @@
-import { Component } from '@angular/core';
-import {IonicPage, NavController, NavParams, Platform} from 'ionic-angular';
-import {ApiQuery} from '../../library/api-query';
-import {Http} from '@angular/http';
-import { HomePage } from '../home/home';
+import {Component} from '@angular/core';
+import {NavController, NavParams, Platform} from 'ionic-angular';
 import { LoginPage } from '../login/login';
 import {InAppBrowser} from "@ionic-native/in-app-browser";
+import {ApiProvider} from "../../providers/api/api";
+import {HomePage} from "../home/home";
 
 /**
  * Generated class for the ActivationPage page.
@@ -13,7 +12,6 @@ import {InAppBrowser} from "@ionic-native/in-app-browser";
  * Ionic pages and navigation.
  */
 
-@IonicPage()
 @Component({
   selector: 'page-activation',
   templateUrl: 'activation.html',
@@ -35,36 +33,24 @@ export class ActivationPage {
 
   constructor(public navCtrl: NavController,
               public navParams: NavParams,
-              public api: ApiQuery,
+              public api: ApiProvider,
               public  platform: Platform,
-              public iab: InAppBrowser,
-              public http: Http) {
+              public iab: InAppBrowser) {
       this.getForm()
   }
 
   getForm(data = '') {
 
 
-          this.http.post(this.api.url + '/user/activate', data, this.api.setHeaders(true)).subscribe(resp => {
-              /*
-               this.form = resp.json().form;
-               this.form.res = resp.json().code;
-               */
-               this.form.errorMessage = resp.json().activation;
-               if(!resp.json().activation && data != '') {
+          this.api.http.post(this.api.url + '/user/activate', data, this.api.setHeaders(true)).subscribe((resp: any) => {
+
+               this.form.errorMessage = resp.activation;
+               if(!resp.activation && data != '') {
                    this.api.status = 1;
                    this.navCtrl.push(HomePage);
                }
 
               this.api.hideLoad();
-              /*
-               if (this.form.res) {
-               this.api.status = 'login';
-               this.api.setStorageData({label: 'status', value: 'login'});
-               //this.navCtrl.push(RegistrationFourPage, {new_user: resp.json().register_end_button});
-               this.navCtrl.push(HomePage);
-               }*/
-
           }, err => {
               this.api.hideLoad();
               this.navCtrl.push(LoginPage);

@@ -1,18 +1,9 @@
 import {Component} from "@angular/core";
-import {IonicPage, NavController, NavParams} from "ionic-angular";
-import {Http} from "@angular/http";
-import {ApiQuery} from "../../library/api-query";
+import {NavController, NavParams} from "ionic-angular";
+import * as $ from "jquery";
+import {ApiProvider} from "../../providers/api/api";
 
-/**
- * Generated class for the AdminMessagesPage page.
- *
- * See https://ionicframework.com/docs/components/#navigation for more info on
- * Ionic pages and navigation.
- */
 
-declare var $: any;
-
-@IonicPage()
 @Component({
     selector: 'page-admin-messages',
     templateUrl: 'admin-messages.html',
@@ -23,7 +14,10 @@ export class AdminMessagesPage {
 
     user: any;
 
-    constructor(public navCtrl: NavController, public api: ApiQuery, public navParams: NavParams, public http: Http) {
+    constructor(
+      public navCtrl: NavController,
+      public navParams: NavParams,
+      public api: ApiProvider) {
 
         this.user = navParams.get('user');
 
@@ -39,6 +33,7 @@ export class AdminMessagesPage {
 
     ionViewWillEnter() {
         $('.back-btn').show();
+        this.api.pageName = 'AdminMessagesPage';
     }
 
     ionViewWillLeave() {
@@ -51,15 +46,15 @@ export class AdminMessagesPage {
     }
 
     getPage() {
-        this.http.get(this.api.url + '/user/admin-messages', this.api.setHeaders(true)).subscribe(data => {
-            this.messages = data.json().messages;
+        this.api.http.get(this.api.url + '/user/admin-messages', this.api.setHeaders(true)).subscribe((data: any) => {
+            this.messages = data.messages;
         }, err => {
             console.log("Oops!");
         });
     }
 
     setMessagesAsRead(){
-        this.http.post(this.api.url + '/user/admin-messages-as-read', {}, this.api.header).subscribe(data => {});
+        this.api.http.post(this.api.url + '/user/admin-messages-as-read', {}, this.api.header).subscribe(data => {});
     }
 
 }

@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams } from 'ionic-angular';
 import * as $ from "jquery";
-import {Http} from "@angular/http";
-import {ApiQuery} from "../../library/api-query";
+import {ApiProvider} from "../../providers/api/api";
 /**
  * Generated class for the Page page.
  *
@@ -10,7 +9,6 @@ import {ApiQuery} from "../../library/api-query";
  * Ionic pages and navigation.
  */
 
-@IonicPage()
 @Component({
   selector: 'page-page',
   templateUrl: 'page.html',
@@ -22,15 +20,14 @@ export class Page {
   constructor(
       public navCtrl: NavController,
       public navParams: NavParams,
-      public api: ApiQuery,
-      public http: Http
+      public api: ApiProvider,
   ) {
     this.api.showLoad();
-    this.http.get(this.api.url + '/user/page/' + this.navParams.get('pageId'), this.api.setHeaders(false)).subscribe(
-        data => {
+    this.api.http.get(this.api.url + '/user/page/' + this.navParams.get('pageId'), this.api.setHeaders(false)).subscribe(
+      (data: any) => {
           //alert(JSON.stringify(data));
-          console.log('page: ', data.json());
-          this.page = data.json();
+          console.log('page: ', data);
+          this.page = data;
           this.api.hideLoad();
           $('#content').html(this.page.pageText);
           //this.content.scrollToTop(300);

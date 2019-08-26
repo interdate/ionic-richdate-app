@@ -182,4 +182,25 @@ page-profile {
     right: 8px;
   }
 
+  .vip{
+    background-image: url("../assets/img/bg_vip_4350c8.jpg");
+    background-repeat: repeat-x;
+    background-size: auto 100%;
+    padding-left: 100px;
+    border: 2px #4350c8 solid;
+    .paying{
+      background: url(../assets/img/vip_icon.png) no-repeat;
+      width: 100px;
+      height: 40px;
+      position: absolute;
+      background-size: cover;
+      left: 3px;
+      top: 13px;
+    }
+  }
+
+  .abuse-form, .abuse-form ion-item.item-md{
+    background: #e9e8e5;
+  }
+
 }

@@ -1,8 +1,6 @@
-import {Component} from "@angular/core";
-import {IonicPage, NavController, NavParams, Platform} from "ionic-angular";
-import {ApiQuery} from "../../library/api-query";
+import {Component, ViewChild} from "@angular/core";
+import {Content, NavController, NavParams, Platform} from "ionic-angular";
 import {InAppPurchase} from "@ionic-native/in-app-purchase";
-import {HomePage} from "../home/home";
 import {Page} from "../page/page";
 import {InAppBrowser} from "@ionic-native/in-app-browser";
 
@@ -12,12 +10,16 @@ import {InAppBrowser} from "@ionic-native/in-app-browser";
  * See https://ionicframework.com/docs/components/#navigation for more info on
  * Ionic pages and navigation.
  */
-@IonicPage()
+import * as $ from 'jquery';
+import {ApiProvider} from "../../providers/api/api";
+import {HomePage} from "../home/home";
+
 @Component({
   selector: 'page-subscription',
   templateUrl: 'subscription.html',
 })
 export class SubscriptionPage {
+  @ViewChild(Content) content: Content;
 
   public dataPage : any;
   is_showed: any;
@@ -25,13 +27,15 @@ export class SubscriptionPage {
   public platform: any = 'ios';
   products: any = [];
   public coupon: any;
+  public chooseProduct: any;
+  public call: any = 0;
 
   constructor(public navCtrl: NavController,
               public navParams: NavParams,
               public plt: Platform,
               public iap: InAppPurchase,
               private iab: InAppBrowser,
-              public api: ApiQuery) {
+              public api: ApiProvider) {
 
     this.getRestore();
 
@@ -50,26 +54,26 @@ export class SubscriptionPage {
   }
 
   subscribe(product) {
-
+    let monthsNumber;
     switch(product.productId){
       case 'richdate.halfMonth':
-        var monthsNumber = 0.5;
+        monthsNumber = 0.5;
         break;
 
       case 'richdate.oneMonth':
-        var monthsNumber = 1;
+        monthsNumber = 1;
         break;
 
       case 'richdate.threeMonths':
-        var monthsNumber = 3;
+        monthsNumber = 3;
         break;
 
       case 'richdate.sixMonth':
-        var monthsNumber = 6;
+        monthsNumber = 6;
         break;
 
       case 'richdate.oneYear':
-        var monthsNumber = 12;
+        monthsNumber = 12;
         break;
     }
     this.iap
@@ -77,7 +81,7 @@ export class SubscriptionPage {
         .then((data)=> {
           if(parseInt(data.transactionId) > 0){
             this.api.presentToast('Congratulations on your purchase of a paid subscription to richdate.co.il', 10000);
-            this.api.http.post(this.api.url + '/user/subscription/monthsNumber:' + monthsNumber, data, this.api.setHeaders1(true)).subscribe(
+            this.api.http.post(this.api.url + '/user/subscription/monthsNumber:' + monthsNumber, data, this.api.setHeaders(true)).subscribe(
               (data: any) => {
                 this.navCtrl.push(HomePage);
               }, err => {
@@ -91,29 +95,58 @@ export class SubscriptionPage {
   }
 
   sendSubscribe(history){
-    this.api.http.post(this.api.url + '/user/restore', JSON.stringify(history), this.api.setHeaders1(true)).subscribe((data: any) => {
+    this.api.http.post(this.api.url + '/user/restore', JSON.stringify(history), this.api.setHeaders(true)).subscribe((data: any) => {
       if(data.payment == 1) {
         this.navCtrl.push(HomePage);
       }
     });
   }
 
-  goto(product){
-    let browser = this.iab.create(product.url,'_blank');
+  chooseVip(product){
+    if(!product.urlVip || product.urlVip == '') {
+      this.goto(product, false);
+    }else {
+      this.chooseProduct = product;
+      this.content.scrollToTop(300);
+    }
+  }
+
+  goto(product, vip = false){
+    delete this.chooseProduct;
+    this.content.scrollToTop(300);
+    let payUrl = (vip) ? product.urlVip : product.url;
+    let browser = this.iab.create(payUrl,'_blank');
 
     let that = this;
 
     let checkStatus = setInterval(
         function(){
-          if(that.api.status == true) {
-            clearInterval(checkStatus);
-            setTimeout(
-                function () {
-                  browser.close();
-                }, 12000
-            )
-          }
-        }, 3000);
+          console.log('Payment status: ' + that.api.isPay);
+          that.api.http.post(that.api.url + '/user/login/', '', that.api.setHeaders(true)).subscribe((data: any) => {
+            if(data.isPay == '1') {
+              that.api.isPay = data.isPay;
+              clearInterval(checkStatus);
+              setTimeout(
+                  function () {
+                    $('ion-header .logo').click();
+                    //that.navCtrl.push(HomePage);
+                    browser.close();
+                  }, 3000
+              )
+            }
+
+          }, err => {
+            console.log(err);
+
+          });
+
+
+        }, 2000);
+
+  }
+
+  backChoose(){
+      delete this.chooseProduct;
   }
 
   getRestore(){
@@ -152,12 +185,13 @@ export class SubscriptionPage {
   }
 
   getPage() {
-    //alert(this.coupon);
+    this.call++;
     this.api.showLoad();
     let coupon = !this.coupon ? '0' : this.coupon;
     this.coupon = '';
-    this.api.http.get(this.api.url + '/user/subscriptions/' + coupon, this.api.setHeaders1(true)).subscribe((data:any) => {
+    this.api.http.get(this.api.url + '/user/subscriptions/' + coupon, this.api.setHeaders(true)).subscribe((data:any) => {
 
+      delete this.chooseProduct;
       this.products = data.subscription.payments;
       this.dataPage = data.subscription;
 

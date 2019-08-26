@@ -1,3 +1,7 @@
+body {
+  -webkit-user-select: text;
+  user-select: text;
+}
 .select-icon {
     display: none;
 }

@@ -388,6 +388,47 @@ ion-popover {
   // left: -57px;
   top: 38px;
 }
-    
 
+.user-section.vip{
+  border: 2px #4350c8 solid;
+  margin: -2px 0 0;
+  ion-card-title{
+    background-image: url("../assets/img/bg_vip_4350c8.jpg");
+    background-repeat: repeat-x;
+    background-size: auto 100%;
+    padding-top: 11px;
+  }
+  .paying {
+    background-image: url(../assets/img/vip_icon.png);
+    background-color: rgba(0,55,172,0.3);//#0037ac;
+    width: 56px;
+    height: 23px;
+    top: 121px;
+    left: 0;
+    border-radius: 0 5px 0 0;
+  }
+}
+ion-list .input-wrapper ion-label{
+  overflow: visible;
+}
+
+.item-md.item-block .item-inner{
+  padding: 0px;
+}
+
+.avatar.private{
+  position: relative;
+}
+.avatar.private::after{
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  right: 0px;
+  background-image: url("../assets/img/privet.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 95px;
+}
 
