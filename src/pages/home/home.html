@@ -73,11 +73,11 @@
                 <div>{{texts.remove}}</div>
             </div>-->
 
-            <div *ngIf="user.isFav == '0'" class="btn" (click)=addFavorites(user)>
+            <div *ngIf="!api.videoShow && user.isFav == '0'" class="btn" (click)=addFavorites(user)>
               <li id="add-green"></li>
               <div>{{texts.add}}</div>
             </div>
-            <div *ngIf="user.isFav == '1'" class="btn" (click)=addFavorites(user)>
+            <div *ngIf="!api.videoShow && user.isFav == '1'" class="btn" (click)=addFavorites(user)>
               <li id="remove-green"></li>
               <div>{{texts.remove}}</div>
             </div>
@@ -87,6 +87,10 @@
               <div>{{texts.unblock}}</div>
             </div>
 
+            <div *ngIf="api.videoShow" class="btn" (click)="toVideoChat(user)">
+              <li id="video-chat"></li>
+              <div>וידאו</div>
+            </div>
             <!--Add-->
           </ul>
           <div class="clr"></div>

@@ -52,7 +52,14 @@ export class HomePage {
               public navParams: NavParams,
               public api: ApiProvider,
               public events: Events) {
-
+    this.api.audioCall = new Audio();
+    this.api.audioCall.src = 'https://m.richdate.co.il/phone_ringing.mp3';
+    this.api.audioCall.loop = true;
+    this.api.audioCall.load();
+    this.api.audioWait = new Audio();
+    this.api.audioWait.src = 'https://m.richdate.co.il/landline_phone_ring.mp3';
+    this.api.audioWait.loop = true;
+    this.api.audioWait.load();
 
     if (this.navParams.get('params') && this.navParams.get('params') != 'login') {
 
@@ -119,6 +126,10 @@ export class HomePage {
     this.navCtrl.push(DialogPage, {
       user: user
     });
+  }
+
+  toVideoChat(user) {
+    this.api.openVideoChat({id: user.id, chatId: 0, alert: false, username: user.nickName});
   }
 
   addLike(user) {
@@ -319,6 +330,7 @@ export class HomePage {
       if(this.loadMoreResults) {
         this.loadMoreResults = false;
         this.api.http.post(this.api.url + '/users/search/', this.params_str, this.api.setHeaders(true)).subscribe((data: any) => {
+          this.api.hideLoad();
           this.loadMoreResults = true;
           if (data.users.items.length < this.params.resultsPerPage) {
             this.loader = false;

@@ -6,16 +6,16 @@
 -->
 
     <ion-header>
-    
+
       <ion-navbar>
         <ion-title>inbox</ion-title>
       </ion-navbar>
-    
+
     </ion-header>
-    
-    
+
+
     <ion-content padding>
-      <div class="no_results" *ngIf="!users">{{ texts?.no_results }}</div>
+      <div class="no_results" *ngIf="users && users.length == 0">{{ texts?.no_results }}</div>
         <ion-list>
             <ion-card *ngFor="let user of users ; let i = index" [attr.data-index]="i" (click)="toDialogPage(user,i)">
                 <ion-card-content [ngClass]="{'highlight': user.user.userId==='468385291'}">
@@ -39,13 +39,13 @@
         </ion-infinite-scroll>
 
 
-    
+
     </ion-content>
     <ion-footer>
-    
+
       <ion-navbar>
         <ion-title></ion-title>
       </ion-navbar>
-    
+
     </ion-footer>
-    
+

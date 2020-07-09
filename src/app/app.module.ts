@@ -48,6 +48,7 @@ import {SettingsPage} from "../pages/settings/settings";
 import {SubscriptionPage} from "../pages/subscription/subscription";
 import {HomePage} from "../pages/home/home";
 import { ApiProvider } from '../providers/api/api';
+import { AndroidPermissions } from '@ionic-native/android-permissions';
 
 
 @NgModule({
@@ -131,6 +132,7 @@ import { ApiProvider } from '../providers/api/api';
         StatusBar,
         SplashScreen,
         InAppBrowser,
+        AndroidPermissions,
         Device,
         Geolocation,
         ImagePicker,

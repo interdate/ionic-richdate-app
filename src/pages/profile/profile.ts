@@ -95,6 +95,10 @@ export class ProfilePage {
         this.content.scrollTo(0, this.content.getContentDimensions().scrollHeight, 300);
     }
 
+    toVideoChat() {
+      this.api.openVideoChat({id: this.user.userId, chatId: 0, alert: false, username: this.user.nickName});
+    }
+
     addFavorites() {
         // this.user.isAddFavorite = true;
         let url, message;

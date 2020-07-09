@@ -87,7 +87,7 @@ export class RegisterPage {
                     let that = this;
                     setTimeout(function () {
                         that.api.hideLoad();
-                    }, 1000);
+                    }, 1500);
                     this.api.storage.get('deviceToken').then((val) => {
                         this.api.sendPhoneId(val);
                     });
@@ -152,7 +152,7 @@ export class RegisterPage {
                 $(".tip.userPhone").show();
             }else if(this.form.fields[index]['name'] == 'userGender' && this.form.fields[4].val == 0){
                 this.form.fields[6].label = 'מספר טלפון';
-                $(".tip.userPhone").hide();
+                $(".tip.userPhone").show();
             }
         });
     }

@@ -32,7 +32,11 @@ export class InboxPage {
 
         this.api.http.get(this.api.url + '/user/contacts/perPage:'+this.params.results.per_page+'/page:'+ this.params.results.current_page, this.api.setHeaders(true)).subscribe((data: any) => {
             this.users = data.allChats;
+            this.texts = data.texts;
             this.api.hideLoad();
+            if (data.allChats.length < this.params.results.per_page) {
+              this.params.results.loader = false;
+            }
         });
     }
 

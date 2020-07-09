@@ -44,6 +44,7 @@ export class ChangePhotosPage {
                 public camera: Camera,
                 public  fileTransfer: FileTransfer,
                 public imagePicker: ImagePicker) {
+        this.api.hideLoad();
 
         if (navParams.get('new_user')) {
             this.new_user = 1;

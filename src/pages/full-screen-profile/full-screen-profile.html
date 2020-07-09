@@ -19,6 +19,8 @@
            class="favorite-profile-btn">
         <img src="assets/img/icons/padd.png"></div>
       <div *ngIf="user.is_in_favorite_list" tappable (click)="addFavorites()" class="disabled favorite-profile-btn"><img src="assets/img/icons/cap.png"></div>
+      <div *ngIf="api.videoShow" class="video-chat-btn" (click)="toVideoChat()">
+      </div>
     </div>
     <div class="close-warp" (click)="goBack()" tappable>
      <div class="close"><img alt="close" src="assets/img/icons/psclose.png"></div>

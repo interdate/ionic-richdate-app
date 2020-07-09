@@ -114,6 +114,7 @@ export class LoginPage {
         myHeaders = myHeaders.append('Content-type', 'application/json');
         myHeaders = myHeaders.append('Accept', '*/*');
         myHeaders = myHeaders.append('Access-Control-Allow-Origin', '*');
+        myHeaders = myHeaders.append('Access-Control-Allow-Credentials', 'true');
         myHeaders = myHeaders.append("Authorization", "Basic " + btoa(username + ':' + password));
 
         this.header = {
@@ -147,11 +148,11 @@ export class LoginPage {
     }
 
     validate(response) {
-        let that = this;
-        setTimeout(function () {
-            that.api.isPay = parseInt(response.isPay);
-        },3000);
-        if (response.status != "not_activated") {
+        //let that = this;
+        //setTimeout(function () {
+            this.api.isPay = response.isPay;
+        //},3000);
+        //if (response.status != "notActivated") {
             this.api.storage.set('username', this.form.login.username.value);
             this.api.storage.set('password', this.form.login.password.value);
             this.api.storage.set('status', response.status);
@@ -161,7 +162,7 @@ export class LoginPage {
 
             //this.api.setHeaders(true, this.form.login.username.value, this.form.login.password.value);
             this.api.setHeaders(true, this.form.login.username.value, this.form.login.password.value);
-        }
+        //}
         if (response.status) {
             let data = {
                 status: 'init',
@@ -172,7 +173,7 @@ export class LoginPage {
             this.api.storage.set('fingerAuth', data);
 
             this.api.storage.set('user_photo', response.photo);
-         if (response.status == "notActivated") {
+            if (response.status == "notActivated") {
                 /* let toast = this.toastCtrl.create({
                  message: response.texts.notActiveMessage,
                  showCloseButton: true,
@@ -181,19 +182,19 @@ export class LoginPage {
                  toast.present();*/
                 this.navCtrl.push(ActivationPage);
             }else if (response.status == "noimg") {
-             this.user.id = response.id;
-             let toast = this.toastCtrl.create({
-                 message: "לכניסה לאתר ריצ'דייט יש להעלות תמונה‎",
-                 duration: 3000
-             });
+               this.user.id = response.id;
+               let toast = this.toastCtrl.create({
+                   message: "לכניסה לאתר ריצ'דייט יש להעלות תמונה‎",
+                   duration: 3000
+               });
 
-             toast.present();
-             this.navCtrl.push(ChangePhotosPage, {
-                 user: this.user,
-                 username: this.form.login.username.value,
-                 password: this.form.login.password.value
-             });
-         }else if(response.userIsPaying == 0) {
+               toast.present();
+               this.navCtrl.push(ChangePhotosPage, {
+                   user: this.user,
+                   username: this.form.login.username.value,
+                   password: this.form.login.password.value
+               });
+            }else if(response.userIsPaying == 0) {
                 this.navCtrl.push(SubscriptionPage);
             }else{
                 this.navCtrl.setRoot(HomePage, {

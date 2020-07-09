@@ -35,20 +35,17 @@ import {FreezeAccountPage} from "../pages/freeze-account/freeze-account";
 import {BingoPage} from "../pages/bingo/bingo";
 import {ApiProvider} from "../providers/api/api";
 import {HomePage} from "../pages/home/home";
+import { AndroidPermissions } from '@ionic-native/android-permissions';
 
 @Component({
     templateUrl: 'app.html'
 })
 export class MyApp {
-    //rootPage:any = LoginPage;
-
     @ViewChild(Nav) nav: Nav;
     @ViewChild(ViewController) viewCtrl: ViewController;
     @ViewChild(Content) content: Content;
 
-    // make HelloIonicPage the root (or first) page
-    rootPage: any;// = HomePage;
-    //rootPage = LoginPage;
+    rootPage: any;
     banner: {src: string; link: string};
     menu_items_logout: any;//Array<{_id: string, icon: string, title: string, count: any, component: any}>;
     menu_items_login: any;//Array<{_id: string, icon: string, title: string, count: any, component: any}>;
@@ -80,7 +77,10 @@ export class MyApp {
                 public alertCtrl: AlertController,
                 public events: Events,
                 public market: Market,
-                public push: Push) {
+                public push: Push,
+                public ap: AndroidPermissions) {
+
+
 
         this.closeMsg();
         var that = this;
@@ -106,6 +106,13 @@ export class MyApp {
         this.getAppVersion();
     }
 
+    requestPermit() {
+      this.ap.requestPermissions([this.ap.PERMISSION.CAMERA, this.ap.PERMISSION.RECORD_AUDIO]).then(
+        result => {this.api.videoShow = true;},
+        err => {this.api.videoShow = false;}
+      );
+    }
+
     getMenu(){
       this.api.http.get(this.api.url + '/user/menu/', this.api.setHeaders()).subscribe((data: any) => {
         //data = data.json();
@@ -128,23 +135,12 @@ export class MyApp {
         });
       },error => {
         //alert(JSON.stringify(error));
-        this.reload()
+        //this.reload()
       });
     }
 
     reload(){
-      //this.splashScreen.show();
-      //window.location.reload();
-
-      //this.splashScreen.show();
-// Reload original app url (ie your index.html file)
       this.platform.exitApp();
-      //window.location.href = 'market://details?id=com.interdate.richdate';
-      //window.open('market://details?id=com.interdate.richdate', '_system');
-      //window.location.href = 'richdate:///';
-      //richdate://
-      //this.splashScreen.hide();
-      //this.nav.remove(index);
     }
 
     getAppVersion() {
@@ -214,7 +210,10 @@ export class MyApp {
                     let statistics = data.statistics;
                     if(typeof statistics != 'undefined') {
                         //this.status = data.status;
-                        this.api.status = data.status;
+                        if(this.api.status != data.status) {
+                          this.api.status = data.status;
+                          this.api.storage.set('status',this.api.status);
+                        }
 
                         this.menu_items_login.push();
                         if (typeof statistics.newNotificationsNumber != 'undefined') {
@@ -243,32 +242,7 @@ export class MyApp {
 
                         this.is2D = data.is2D;
                         this.api.isPay = data.isPay;
-
-                        if (this.api.pageName != 'LoginPage' && this.api.pageName != 'SubscriptionPage' && this.api.pageName != 'ContactUsPage' && this.api.pageName != 'PagePage' && this.api.isPay == 0 && this.is2D == 0) {
-                            //this.status = 1;
-                            this.nav.setRoot(SubscriptionPage);
-                        } else if (this.api.pageName != 'ChangePhotosPage' && this.api.status === 'noimg') {
-                            //this.status = 1;
-                            let toast = this.toastCtrl.create({
-                                message: "לכניסה לאתר ריצ'דייט יש להעלות תמונה",
-                                duration: 3000
-                            });
-
-                            toast.present();
-                            this.nav.setRoot(ChangePhotosPage);
-                        } else if (this.api.pageName != 'ChangePhotosPage' && this.api.pageName != 'ActivationPage' && this.api.status === 'notActivated') {
-                            //this.status = 1;
-                            this.nav.setRoot(ActivationPage);
-                        }
-
-                        if (this.api.pageName == 'ActivationPage' && this.api.status != 'notActivated') {
-                            this.nav.setRoot(HomePage);
-                        }
-
-                        //
-                        if ((this.api.pageName == 'SubscriptionPage' && this.api.isPay == 1)) {
-                            this.nav.setRoot(HomePage);
-                        }
+                        this.checkStatus();
 
                     }
                 }, err => {
@@ -534,6 +508,29 @@ export class MyApp {
                 /*setTimeout(function () {
                  this.splashScreen.hide();
                  },1000);*/
+                this.ap.checkPermission(this.ap.PERMISSION.CAMERA).then(
+                  result => {
+                    console.log(result);
+                    if(result.hasPermission) {
+                      this.ap.checkPermission(this.ap.PERMISSION.RECORD_AUDIO).then(
+                        result => {
+                          console.log(result);
+                          if(result.hasPermission) {
+                            this.api.videoShow = true;
+                          }else{
+                            this.requestPermit();
+                          }
+                        },
+                        err => {
+                          this.requestPermit();
+                        }
+                      );
+                    }else{
+                      this.requestPermit();
+                    }
+                  },
+                  err => {this.requestPermit();}
+                );
             }
         });
     }
@@ -625,13 +622,25 @@ export class MyApp {
                 this.nav.push(InboxPage);
             }else{
                 //alert(JSON.stringify(dataOpen));
-                this.nav.push(DialogPage, {
-                    user: {
-                        userId: dataOpen.additionalData.userId,
-                        userNick: dataOpen.additionalData.userNick
-                    }
-                });
+                if(typeof dataOpen.additionalData.video != 'undefined'){
+                  const param = {
+                    id: dataOpen.additionalData.userId,
+                    chatId: 0,
+                    alert: false,
+                    username: dataOpen.additionalData.userNick,
+                  };
+                  this.api.openVideoChat(param);
+                }else{
+
+                    this.nav.push(DialogPage, {
+                        user: {
+                            userId: dataOpen.additionalData.userId,
+                            userNick: dataOpen.additionalData.userNick
+                        }
+                    });
+                }
             }
+
         }else{
           /*var ref = */window.open(dataOpen.additionalData.urlRedirect, '_system');
         }
@@ -754,7 +763,7 @@ export class MyApp {
                      this.status = data.status;
                      }*/
                     console.log(data);
-                    if (data.texts.items && data.texts.items.length > 0) {
+                    if (data.texts.items && data.texts.items.length > 0 && data.logged != 'notActivated') {
                         let params = JSON.stringify({
                             bingo: data.texts.items[0]
                         });
@@ -763,9 +772,93 @@ export class MyApp {
                         });
                     }
                 });
+
+              //call
+              if(this.api.pageName != 'SubscriptionPage') {
+                this.api.http.get(this.api.url + '/user/call/get', this.api.setHeaders(true)).subscribe((data: any) => {
+                  console.log(this.api.videoChat == null && data.calls);
+                  if (this.api.videoChat == null && data.calls) {
+
+                    //res['userId'] = val;
+                    this.callAlert(data);
+
+                  }
+                });
+              }
             }
         });
     }
+
+  async callAlert(data){
+    if(this.api.callAlertShow == false && this.api.videoChat == null) {
+      this.api.playAudio('wait');
+      this.api.callAlertShow = true;
+      const param = {
+        id: data.calls.msgFromId,
+        chatId: data.calls.msgId,
+        alert: true,
+        username: data.calls.nickName,
+      };
+      this.api.checkVideoStatus(param);
+      this.api.callAlert = await this.api.alertCtrl.create({
+        title: '<img class="alert-call" width="40" src="' + data.calls.img.url + '"> ' + data.calls.title,
+        // header: 'שיחה נכנסת',
+        message: data.calls.title.message,
+        buttons: [
+          {
+            text: data.calls.buttons[1],
+            cssClass: 'redCall',
+            role: 'cancel',
+            handler: () => {
+              this.api.stopAudio();
+              this.api.callAlertShow = false;
+              this.api.http.post(this.api.url + '/user/call/' + param.id, {
+                message: 'close',
+                id: param.chatId
+              }, this.api.setHeaders(true)).subscribe((data: any) => {
+                // let res = data;
+                console.log('close');
+                if(this.api.callAlert !== null) {
+                  this.api.callAlert.dismiss();
+                  this.api.callAlert = null;
+                }
+
+                // console.log(res);
+                // this.status == 'close';
+                // location.reload();
+              });
+            }
+          },
+          {
+            text: data.calls.buttons[0],
+            cssClass: 'greenCall',
+            handler: () => {
+              if(this.api.callAlert !== null) {
+                this.api.callAlert.dismiss();
+                this.api.callAlert = null;
+              }
+              // this.webRTC.partnerId = param.id;
+              // this.webRTC.chatId = param.chatId;
+              // this.nav.push(VideoChatPage, param);
+              console.log('open');
+              this.api.callAlertShow = false;
+
+              this.api.openVideoChat(param);
+            }
+          }
+        ]
+      });
+
+
+      await this.api.callAlert.present();
+      this.api.callAlert.onWillDismiss(() => {
+        this.api.callAlertShow = false;
+        this.api.callAlert = null;
+        this.api.stopAudio();
+        console.log('dismiss');
+      });
+    }
+  }
 
     dialogPage() {
         let user = {id: this.new_message.userId};
@@ -780,26 +873,32 @@ export class MyApp {
     checkStatus() {
         //let page = this.nav.getActive();
 
-        if (!(this.api.pageName == 'ActivationPage') && !(this.api.pageName == 'ContactUsPage') && !(this.api.pageName == 'ChangePhotosPage') && !(this.api.pageName == 'RegistrationThreePage')
-            && !(this.api.pageName == 'RegisterPage') && !(this.api.pageName == 'TermsPage')) {
-            if (this.api.status == 'no_photo') {
-                let toast = this.toastCtrl.create({
-                    message: this.texts.photoMessage,
-                    showCloseButton: true,
-                    closeButtonText: 'אישור'
-                });
-                if (this.texts.photoMessage) {
-                    toast.present();
-                }
-                //alert(page);
-                this.nav.push(RegisterPage);
-                this.nav.push(ChangePhotosPage);
-            } else if (this.api.status == 'not_activated') {
+        if (this.api.pageName != 'LoginPage' && this.api.pageName != 'ContactUsPage' && this.api.pageName != 'RegisterPage' && this.api.pageName != 'TermsPage' && this.api.pageName != 'PagePage') {
+          //alert(this.api.status + ' ' + this.api.pageName);
+            if (this.api.pageName != 'SubscriptionPage' && this.api.isPay == 0 && this.is2D == 0 && this.api.status == true) {
+              //this.status = 1;
+              this.nav.setRoot(SubscriptionPage);
+            } else if ((this.api.pageName != 'ActivationPage') && this.api.status == 'notActivated' && this.api.pageName != 'ChangePhotosPage') {
                 this.nav.push(ActivationPage);
+            }else if (this.api.pageName != 'ChangePhotosPage' && this.api.status == 'noimg') {
+              let toast = this.toastCtrl.create({
+                message: this.texts.photoMessage,
+                showCloseButton: true,
+                closeButtonText: 'אישור'
+              });
+              if (this.texts.photoMessage) {
+                toast.present();
+              }
+              //alert(page);
+              this.nav.push(RegisterPage);
+              this.nav.push(ChangePhotosPage);
             }
+            this.api.hideLoad();
         }
-        if (((this.api.pageName == 'ActivationPage') && this.api.status == 'login')) {
+
+        if (((this.api.pageName == 'ActivationPage') && this.api.status == 'login') || (this.api.pageName == 'SubscriptionPage' && this.api.isPay == 1)) {
             this.nav.push(HomePage);
+            this.api.hideLoad();
         }
     }
 
@@ -839,22 +938,6 @@ export class MyApp {
                 }
             }, 10000);
 
-            if (this.api.pageName != 'LoginPage' && this.api.pageName != 'SubscriptionPage' && this.api.pageName != 'ContactUsPage' && this.api.pageName != 'PagePage' && this.api.isPay == 0 && this.is2D == 0 && this.api.status == 1) {
-                //this.status = 1;
-                this.nav.setRoot(SubscriptionPage);
-            } else if (this.api.pageName != 'ChangePhotosPage' && this.api.status === 'noimg') {
-                //this.status = 1;
-                let toast = this.toastCtrl.create({
-                    message: "לכניסה לאתר ריצ'דייט יש להעלות תמונה",
-                    duration: 3000
-                });
-
-                toast.present();
-                this.nav.setRoot(ChangePhotosPage);
-            } else if (this.api.pageName != 'ChangePhotosPage' && this.api.pageName != 'ActivationPage' && this.api.status === 'notActivated') {
-                //this.status = 1;
-                this.nav.setRoot(ActivationPage);
-            }
 
             if (this.api.pageName == 'DialogPage' || this.api.pageName == 'SubscriptionPage') {
                 $('.footerMenu').hide();
@@ -914,9 +997,11 @@ export class MyApp {
             //this.api.setHeaders(true);
 
             this.api.storage.get('status').then((val) => {
-                if (this.api.status == '') {
+
+                if (this.api.status != val) {
                     this.api.status = val;
                 }
+
                 this.checkStatus();
                 if (!val) {
                     this.menu_items = this.menu_items_logout;

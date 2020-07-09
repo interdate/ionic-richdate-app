@@ -46,7 +46,8 @@ export class ActivationPage {
 
                this.form.errorMessage = resp.activation;
                if(!resp.activation && data != '') {
-                   this.api.status = 1;
+                   this.api.status = true;
+                   this.api.storage.set('status',this.api.status);
                    this.navCtrl.push(HomePage);
                }
 
